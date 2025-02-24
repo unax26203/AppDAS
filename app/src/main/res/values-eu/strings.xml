@@ -15,5 +15,5 @@
     <string name="dialog_new_positive">Gorde</string>
     <string name="dialog_new_negative">Utzi</string>
 
-    <string name="extra_info">Hau informazio gehigarria da</string>
+    <string name="extra_info"> Argibideak: Liburu edo filma bat gehitzeko, sakatu gehitu botoia. Elementua editatu edo ezabatzeko, sakatu zerrendan. Menua erabili hizkuntza aldatzeko eta ezarpenak erabili gaia aldatzeko.</string>
 </resources>
