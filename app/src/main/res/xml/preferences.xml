@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Preferencia para elegir el tema -->
+    <ListPreference
+        android:key="theme_preference"
+        android:title="Selecciona el tema"
+        android:summary="Elige entre Light y Dark"
+        android:entries="@array/theme_entries"
+        android:entryValues="@array/theme_values"
+        android:defaultValue="light" />
+
+    <!-- Preferencia para mostrar/ocultar información extra -->
+    <SwitchPreferenceCompat
+        android:key="show_extra_info"
+        android:title="Mostrar información extra"
+        android:summary="Decide si se muestran detalles adicionales en la app"
+        android:defaultValue="true" />
+
+</PreferenceScreen>
