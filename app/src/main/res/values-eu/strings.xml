@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Liburu eta Filma Jarraipena</string>
+    <string name="add_item">Gehitu elementua</string>
+    <string name="edit_item">Editatu elementua</string>
+    <string name="change_language">Hizkuntza aldatu</string>
+    <string name="select_language">Hizkuntza aukeratu</string>
+
+    <!-- Diálogoetako hizkuntzak -->
+    <string name="dialog_edit_title">Editatu: </string>
+    <string name="dialog_edit_positive">Eguneratu</string>
+    <string name="dialog_edit_negative">Utzi</string>
+    <string name="dialog_edit_neutral">Ezabatu</string>
+
+    <string name="dialog_new_title">Liburu/Filma Berria</string>
+    <string name="dialog_new_positive">Gorde</string>
+    <string name="dialog_new_negative">Utzi</string>
+</resources>

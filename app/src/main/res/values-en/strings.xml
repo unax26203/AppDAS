@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Books &amp; Movies Tracker</string>
+    <string name="add_item">Add Item</string>
+    <string name="edit_item">Edit Item</string>
+    <string name="change_language">Change Language</string>
+    <string name="select_language">Select Language</string>
+
+    <!-- Strings for dialogs -->
+    <string name="dialog_edit_title">Edit: </string>
+    <string name="dialog_edit_positive">Update</string>
+    <string name="dialog_edit_negative">Cancel</string>
+    <string name="dialog_edit_neutral">Delete</string>
+
+    <string name="dialog_new_title">New Book/Movie</string>
+    <string name="dialog_new_positive">Save</string>
+    <string name="dialog_new_negative">Cancel</string>
+</resources>

@@ -1,6 +1,5 @@
 package com.example.appseguimiento.ui.dialog;
 
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
@@ -21,7 +20,6 @@ public class NuevoMediaDialog extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        // El Activity debe implementar NuevoMediaDialogListener
         try {
             listener = (NuevoMediaDialogListener) getActivity();
         } catch (ClassCastException e) {
@@ -29,7 +27,8 @@ public class NuevoMediaDialog extends DialogFragment {
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Nuevo Libro/Película");
+        // Usa getString para establecer el título del diálogo.
+        builder.setTitle(getString(R.string.dialog_new_title));
 
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.dialog_nuevo_media, null);
@@ -37,12 +36,12 @@ public class NuevoMediaDialog extends DialogFragment {
         final EditText etDescripcion = view.findViewById(R.id.etDescripcion);
 
         builder.setView(view)
-                .setPositiveButton("Guardar", (dialog, id) -> {
+                .setPositiveButton(getString(R.string.dialog_new_positive), (dialog, id) -> {
                     String titulo = etTitulo.getText().toString();
                     String descripcion = etDescripcion.getText().toString();
                     listener.onMediaAdded(titulo, descripcion);
                 })
-                .setNegativeButton("Cancelar", (dialog, id) -> dialog.cancel());
+                .setNegativeButton(getString(R.string.dialog_new_negative), (dialog, id) -> dialog.cancel());
 
         return builder.create();
     }

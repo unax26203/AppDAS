@@ -46,7 +46,8 @@ public class EditarMediaDialog extends DialogFragment {
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Editar: " + getArguments().getString(ARG_TITULO));
+        // Utilizamos getString para el título y concatenamos el título del elemento a editar.
+        builder.setTitle(getString(R.string.dialog_edit_title) + getArguments().getString(ARG_TITULO));
 
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.dialog_editar_media, null);
@@ -57,7 +58,7 @@ public class EditarMediaDialog extends DialogFragment {
         switchEstado.setChecked(getArguments().getBoolean(ARG_ESTADO));
 
         builder.setView(view)
-                .setPositiveButton("Actualizar", (dialog, id) -> {
+                .setPositiveButton(getString(R.string.dialog_edit_positive), (dialog, id) -> {
                     int idItem = getArguments().getInt(ARG_ID);
                     String nuevaDesc = etDescripcion.getText().toString();
                     boolean nuevoEstado = switchEstado.isChecked();
@@ -65,8 +66,8 @@ public class EditarMediaDialog extends DialogFragment {
                     item.setId(idItem);
                     listener.onMediaUpdated(item);
                 })
-                .setNegativeButton("Cancelar", (dialog, id) -> dialog.cancel())
-                .setNeutralButton("Borrar", (dialog, id) -> {
+                .setNegativeButton(getString(R.string.dialog_edit_negative), (dialog, id) -> dialog.cancel())
+                .setNeutralButton(getString(R.string.dialog_edit_neutral), (dialog, id) -> {
                     int idItem = getArguments().getInt(ARG_ID);
                     MediaItem item = new MediaItem(getArguments().getString(ARG_TITULO), getArguments().getString(ARG_DESCRIPCION),
                             getArguments().getBoolean(ARG_ESTADO));
