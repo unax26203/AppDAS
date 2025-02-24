@@ -19,6 +19,8 @@ import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
+
 import androidx.appcompat.widget.Toolbar;
 
 import com.example.appseguimiento.data.AppDatabase;
@@ -45,15 +47,24 @@ public class MainActivity extends AppCompatActivity implements
     private AppDatabase db;
     private FragmentManager fm;
 
+    private String currentTheme;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        currentTheme = prefs.getString("theme_preference", "light");
+        if (currentTheme.equals("dark")) {
+            setTheme(R.style.AppTheme_Dark); // Asegúrate de que este estilo esté definido en styles.xml
+        } else {
+            setTheme(R.style.AppTheme_Light);
+        }
+
         super.onCreate(savedInstanceState);
 
         // Inflar el layout
         setContentView(R.layout.activity_main);
 
         // Leer la preferencia del idioma y aplicar la configuración
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String lang = prefs.getString("app_language", "es");
         Locale locale = new Locale(lang);
         Locale.setDefault(locale);
@@ -85,6 +96,7 @@ public class MainActivity extends AppCompatActivity implements
                 dialog.show(fm, "NuevoMediaDialog");
             }
         });
+        actualizarExtraInfo();
     }
 
 
@@ -104,6 +116,20 @@ public class MainActivity extends AppCompatActivity implements
         });
     }
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String newTheme = prefs.getString("theme_preference", "light");
+        if (!newTheme.equals(currentTheme)) {
+            // Actualiza currentTheme y recrea la actividad para aplicar el nuevo tema
+            currentTheme = newTheme;
+            recreate();
+        }
+        // También puedes actualizar otros elementos, por ejemplo, la visibilidad de la info extra:
+        actualizarExtraInfo();
+    }
     @Override
     protected void attachBaseContext(Context newBase) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(newBase);
@@ -198,6 +224,15 @@ public class MainActivity extends AppCompatActivity implements
         return super.onOptionsItemSelected(item);
     }
 
+    private void actualizarExtraInfo() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean showExtraInfo = prefs.getBoolean("show_extra_info", true);
+        // Supongamos que tienes un TextView con id tvExtraInfo
+        TextView tvExtraInfo = findViewById(R.id.tvExtraInfo);
+        if (tvExtraInfo != null) {
+            tvExtraInfo.setVisibility(showExtraInfo ? View.VISIBLE : View.GONE);
+        }
+    }
 
     private void cambiarIdioma(String lang) {
         // Crea un nuevo Locale con el código (es, en, eu)

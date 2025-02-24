@@ -14,4 +14,6 @@
     <string name="dialog_new_title">Liburu/Filma Berria</string>
     <string name="dialog_new_positive">Gorde</string>
     <string name="dialog_new_negative">Utzi</string>
+
+    <string name="extra_info">Hau informazio gehigarria da</string>
 </resources>

@@ -14,4 +14,6 @@
     <string name="dialog_new_title">New Book/Movie</string>
     <string name="dialog_new_positive">Save</string>
     <string name="dialog_new_negative">Cancel</string>
+
+    <string name="extra_info">This is extra visible information</string>
 </resources>
