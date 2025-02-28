@@ -7,6 +7,8 @@ import androidx.preference.ListPreference;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import java.util.Objects;
+
 public class SettingsFragment extends PreferenceFragmentCompat
         implements SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -18,22 +20,23 @@ public class SettingsFragment extends PreferenceFragmentCompat
     @Override
     public void onResume() {
         super.onResume();
-        getPreferenceScreen().getSharedPreferences()
+        Objects.requireNonNull(getPreferenceScreen().getSharedPreferences())
                 .registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        getPreferenceScreen().getSharedPreferences()
+        Objects.requireNonNull(getPreferenceScreen().getSharedPreferences())
                 .unregisterOnSharedPreferenceChangeListener(this);
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        assert key != null;
         if (key.equals("language_preference")) {
             // Opcional: reiniciar la actividad principal para aplicar el nuevo idioma.
-            getActivity().recreate();
+            requireActivity().recreate();
         }
     }
 }

@@ -16,4 +16,12 @@
     <string name="dialog_new_negative">Utzi</string>
 
     <string name="extra_info"> Argibideak: Liburu edo filma bat gehitzeko, sakatu gehitu botoia. Elementua editatu edo ezabatzeko, sakatu zerrendan. Menua erabili hizkuntza aldatzeko eta ezarpenak erabili gaia aldatzeko.</string>
+
+    <string name="hint_title">Izenburua</string>
+    <string name="hint_description">Deskribapena</string>
+
+    <string name="action_settings">Ezarpenak</string>
+    <string name="action_export">Datuak esportatu</string>
+    <string name="action_import">Datuak inportatu</string>
+
 </resources>

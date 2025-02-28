@@ -53,11 +53,19 @@ public class MainActivity extends AppCompatActivity implements
     private AppDatabase db;
     private FragmentManager fm;
 
+    private String currentLanguage;
     private String currentTheme;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        currentLanguage = prefs.getString("language_preference", "es");
+        Locale locale = new Locale(currentLanguage);
+        Locale.setDefault(locale);
+        Configuration config = new Configuration(getResources().getConfiguration());
+        config.setLocale(locale);
+        getResources().updateConfiguration(config, getResources().getDisplayMetrics());
         currentTheme = prefs.getString("theme_preference", "light");
         if (currentTheme.equals("dark")) {
             setTheme(R.style.AppTheme_Dark); // Asegúrate de que este estilo esté definido en styles.xml
@@ -69,15 +77,6 @@ public class MainActivity extends AppCompatActivity implements
 
         // Inflar el layout
         setContentView(R.layout.activity_main);
-
-        // Leer la preferencia del idioma y aplicar la configuración
-        String lang = prefs.getString("app_language", "es");
-        Locale locale = new Locale(lang);
-        Locale.setDefault(locale);
-        Resources resources = getResources();
-        Configuration config = resources.getConfiguration();
-        config.setLocale(locale);
-        resources.updateConfiguration(config, resources.getDisplayMetrics());
 
         // Configurar el Toolbar personalizado
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -221,6 +220,20 @@ public class MainActivity extends AppCompatActivity implements
         });
     }
 
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(newBase);
+        // Usamos "language_preference" aquí
+        String lang = prefs.getString("language_preference", "es");
+        Locale newLocale = new Locale(lang);
+        Locale.setDefault(newLocale);
+
+        Configuration config = newBase.getResources().getConfiguration();
+        config.setLocale(newLocale);
+        Context context = newBase.createConfigurationContext(config);
+        super.attachBaseContext(context);
+    }
+
 
 
     @Override
@@ -228,6 +241,15 @@ public class MainActivity extends AppCompatActivity implements
         super.onResume();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String newTheme = prefs.getString("theme_preference", "light");
+        String newLang = prefs.getString("language_preference", "es");
+        if (!newLang.equals(currentLanguage)) {
+            // Actualiza la variable y reinicia la Activity completamente
+            currentLanguage = newLang;
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            finish();
+            startActivity(intent);
+        }
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(getString(R.string.app_name));
         }
@@ -239,19 +261,6 @@ public class MainActivity extends AppCompatActivity implements
         // También puedes actualizar otros elementos, por ejemplo, la visibilidad de la info extra:
         actualizarExtraInfo();
     }
-    @Override
-    protected void attachBaseContext(Context newBase) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(newBase);
-        String lang = prefs.getString("app_language", "es"); // Español por defecto
-        Locale newLocale = new Locale(lang);
-        Locale.setDefault(newLocale);
-
-        Configuration config = newBase.getResources().getConfiguration();
-        config.setLocale(newLocale);
-        Context context = newBase.createConfigurationContext(config);
-        super.attachBaseContext(context);
-    }
-
 
     // Callback desde NuevoMediaDialog (para agregar nuevo ítem)
     @Override
@@ -322,10 +331,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_cambiar_idioma) {
-            mostrarDialogoCambiarIdioma();
-            return true;
-        } else if (id == R.id.action_settings) {
+        if (id == R.id.action_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
             return true;
@@ -348,49 +354,4 @@ public class MainActivity extends AppCompatActivity implements
             tvExtraInfo.setVisibility(showExtraInfo ? View.VISIBLE : View.GONE);
         }
     }
-
-    private void cambiarIdioma(String lang) {
-        // Crea un nuevo Locale con el código (es, en, eu)
-        Locale locale = new Locale(lang);
-        Locale.setDefault(locale);
-
-        // Actualiza la configuración de recursos
-        Resources resources = getResources();
-        Configuration config = resources.getConfiguration();
-        config.setLocale(locale);
-        resources.updateConfiguration(config, resources.getDisplayMetrics());
-
-        // (Opcional) Guarda la preferencia para que el idioma se mantenga al reiniciar la app.
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString("app_language", lang);
-        editor.apply();
-
-        // Reinicia la Activity para aplicar el nuevo idioma
-        recreate();
-    }
-
-
-    private void mostrarDialogoCambiarIdioma() {
-        // Opciones a mostrar
-        final String[] idiomas = {"Español", "English", "Euskera"};
-
-        // Usa la cadena 'select_language' para el título (se traducirá según el idioma actual)
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(getString(R.string.select_language));
-
-        builder.setItems(idiomas, (dialog, which) -> {
-            String idiomaSeleccionado;
-            if (which == 0) {
-                idiomaSeleccionado = "es";
-            } else if (which == 1) {
-                idiomaSeleccionado = "en";
-            } else { // which == 2
-                idiomaSeleccionado = "eu";
-            }
-            cambiarIdioma(idiomaSeleccionado);
-        });
-        builder.create().show();
-    }
-
 }
