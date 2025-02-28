@@ -9,14 +9,19 @@ public class MediaItem {
     private int id;
     private String titulo;
     private String descripcion;
-    private boolean isCompleted; // true = Terminada, false = Pendiente
+    private boolean isCompleted;
+    // Nuevo campo para diferenciar: "libro" o "pelicula"
+    private String tipo;
 
-    // Constructor
-    public MediaItem(String titulo, String descripcion, boolean isCompleted) {
+    public MediaItem(String titulo, String descripcion, boolean isCompleted, String tipo) {
         this.titulo = titulo;
         this.descripcion = descripcion;
         this.isCompleted = isCompleted;
+        this.tipo = tipo;
     }
+    // Getters y setters para el nuevo campo:
+    public String getTipo() { return tipo; }
+    public void setTipo(String tipo) { this.tipo = tipo; }
 
     // Getters y Setters
     public int getId() { return id; }

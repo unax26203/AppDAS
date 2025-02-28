@@ -9,4 +9,12 @@
         android:id="@+id/action_settings"
         android:title="Ajustes"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_export"
+        android:title="Exportar datos"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_import"
+        android:title="Importar datos"
+        app:showAsAction="never" />
 </menu>

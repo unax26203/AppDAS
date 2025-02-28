@@ -24,6 +24,9 @@ public class EditarMediaDialog extends DialogFragment {
     private static final String ARG_DESCRIPCION = "descripcion";
     private static final String ARG_ESTADO = "estado";
 
+    // Nuevo campo para diferenciar: "libro" o "pelicula"
+    private static final String ARG_TIPO = "tipo";
+
     private EditarMediaDialogListener listener;
 
     public static EditarMediaDialog newInstance(MediaItem item) {
@@ -62,7 +65,7 @@ public class EditarMediaDialog extends DialogFragment {
                     int idItem = getArguments().getInt(ARG_ID);
                     String nuevaDesc = etDescripcion.getText().toString();
                     boolean nuevoEstado = switchEstado.isChecked();
-                    MediaItem item = new MediaItem(getArguments().getString(ARG_TITULO), nuevaDesc, nuevoEstado);
+                    MediaItem item = new MediaItem(getArguments().getString(ARG_TITULO), nuevaDesc, nuevoEstado, getArguments().getString(ARG_TIPO));
                     item.setId(idItem);
                     listener.onMediaUpdated(item);
                 })
@@ -70,7 +73,7 @@ public class EditarMediaDialog extends DialogFragment {
                 .setNeutralButton(getString(R.string.dialog_edit_neutral), (dialog, id) -> {
                     int idItem = getArguments().getInt(ARG_ID);
                     MediaItem item = new MediaItem(getArguments().getString(ARG_TITULO), getArguments().getString(ARG_DESCRIPCION),
-                            getArguments().getBoolean(ARG_ESTADO));
+                            getArguments().getBoolean(ARG_ESTADO), getArguments().getString(ARG_TIPO));
                     item.setId(idItem);
                     listener.onMediaDeleted(item);
                 });

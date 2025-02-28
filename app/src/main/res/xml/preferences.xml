@@ -17,4 +17,13 @@
         android:summary="Decide si se muestran detalles adicionales en la app"
         android:defaultValue="true" />
 
+    <!-- Preferencia para elegir el idioma -->
+    <ListPreference
+        android:key="language_preference"
+        android:title="Selecciona el idioma"
+        android:summary="Elige entre Español, English y Euskera"
+        android:entries="@array/language_entries"
+        android:entryValues="@array/language_values"
+        android:defaultValue="es" />
+
 </PreferenceScreen>

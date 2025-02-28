@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Arrays para el tema -->
     <string-array name="theme_entries">
         <item>Light</item>
         <item>Dark</item>
@@ -8,4 +9,26 @@
         <item>light</item>
         <item>dark</item>
     </string-array>
+
+    <!-- Arrays para el idioma -->
+    <string-array name="language_entries">
+        <item>Español</item>
+        <item>English</item>
+        <item>Euskera</item>
+    </string-array>
+    <string-array name="language_values">
+        <item>es</item>
+        <item>en</item>
+        <item>eu</item>
+    </string-array>
+
+    <string-array name="tipo_entries">
+        <item>Libro</item>
+        <item>Película</item>
+    </string-array>
+    <string-array name="tipo_values">
+        <item>libro</item>
+        <item>pelicula</item>
+    </string-array>
+
 </resources>

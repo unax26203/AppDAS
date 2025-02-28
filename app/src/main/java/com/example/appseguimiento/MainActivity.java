@@ -20,6 +20,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 
@@ -32,6 +33,11 @@ import com.example.appseguimiento.ui.dialog.NuevoMediaDialog;
 import com.example.appseguimiento.utils.NotificacionesHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -116,12 +122,115 @@ public class MainActivity extends AppCompatActivity implements
         });
     }
 
+    private void exportDataToFile() {
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                // Obtener la lista de items desde la base de datos
+                final List<MediaItem> items = dao.getAllItems();
+                StringBuilder sb = new StringBuilder();
+                // Construir una línea para cada MediaItem, usando coma (,) como delimitador.
+                // Por ejemplo: titulo,descripcion,estado,tipo
+                for (MediaItem item : items) {
+                    sb.append(item.getTitulo()).append(",");
+                    sb.append(item.getDescripcion()).append(",");
+                    // Usamos "1" para terminado y "0" para pendiente
+                    sb.append(item.isCompleted() ? "1" : "0").append(",");
+                    sb.append(item.getTipo());  // Asegúrate de que MediaItem tenga este campo si lo has añadido.
+                    sb.append("\n");
+                }
+                String data = sb.toString();
+
+                // Elegir una ubicación para el archivo. Aquí usamos el directorio de archivos externos privados.
+                File file = new File(getExternalFilesDir(null), "media_export.txt");
+                try (FileOutputStream fos = new FileOutputStream(file)) {
+                    fos.write(data.getBytes());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    // Opcional: mostrar un mensaje de error en la UI.
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MainActivity.this, "Error exportando datos", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    return;
+                }
+
+                // Mostrar un mensaje en la UI indicando que se exportó correctamente.
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MainActivity.this, "Datos exportados a: " + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        });
+    }
+
+
+    private void importDataFromFile() {
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                // Ubicación del archivo que exportamos anteriormente
+                File file = new File(getExternalFilesDir(null), "media_export.txt");
+                if (!file.exists()) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MainActivity.this, "Archivo no encontrado", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    return;
+                }
+
+                try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        // Separamos la línea por comas
+                        String[] parts = line.split(",");
+                        if (parts.length >= 4) {
+                            String titulo = parts[0];
+                            String descripcion = parts[1];
+                            boolean isCompleted = parts[2].equals("1");
+                            String tipo = parts[3];
+                            MediaItem item = new MediaItem(titulo, descripcion, isCompleted, tipo);
+                            dao.insertItem(item);
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MainActivity.this, "Error importando datos", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    return;
+                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MainActivity.this, "Datos importados", Toast.LENGTH_SHORT).show();
+                        cargarDatos();  // Actualiza la lista con los datos importados
+                    }
+                });
+            }
+        });
+    }
+
+
 
     @Override
     protected void onResume() {
         super.onResume();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String newTheme = prefs.getString("theme_preference", "light");
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(getString(R.string.app_name));
+        }
         if (!newTheme.equals(currentTheme)) {
             // Actualiza currentTheme y recrea la actividad para aplicar el nuevo tema
             currentTheme = newTheme;
@@ -146,13 +255,13 @@ public class MainActivity extends AppCompatActivity implements
 
     // Callback desde NuevoMediaDialog (para agregar nuevo ítem)
     @Override
-    public void onMediaAdded(final String titulo, final String descripcion) {
+    public void onMediaAdded(final String titulo, final String descripcion, final String tipo) {
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
-                MediaItem nuevo = new MediaItem(titulo, descripcion, false);
+                // Suponiendo que has actualizado MediaItem para incluir el tipo
+                MediaItem nuevo = new MediaItem(titulo, descripcion, false, tipo);
                 dao.insertItem(nuevo);
-                // Mostrar notificación
                 NotificacionesHelper.mostrarNotificacion(MainActivity.this, "Nuevo ítem", "Añadido: " + titulo);
                 runOnUiThread(new Runnable() {
                     @Override
@@ -212,13 +321,19 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_cambiar_idioma) {
+        int id = item.getItemId();
+        if (id == R.id.action_cambiar_idioma) {
             mostrarDialogoCambiarIdioma();
             return true;
-        }else if(item.getItemId() == R.id.action_settings){
-            // Lanzar la actividad de preferencias
+        } else if (id == R.id.action_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
+            return true;
+        } else if (id == R.id.action_export) {
+            exportDataToFile();
+            return true;
+        } else if (id == R.id.action_import) {
+            importDataFromFile();
             return true;
         }
         return super.onOptionsItemSelected(item);
