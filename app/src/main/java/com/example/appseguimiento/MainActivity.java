@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -38,6 +39,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -55,6 +58,10 @@ public class MainActivity extends AppCompatActivity implements
 
     private String currentLanguage;
     private String currentTheme;
+
+    private static final int EXPORT_REQUEST_CODE = 1;
+    private static final int IMPORT_REQUEST_CODE = 2;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,73 +128,67 @@ public class MainActivity extends AppCompatActivity implements
         });
     }
 
-    private void exportDataToFile() {
+    private void exportDataToUri(Uri uri) {
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
-                // Obtener la lista de items desde la base de datos
                 final List<MediaItem> items = dao.getAllItems();
                 StringBuilder sb = new StringBuilder();
-                // Construir una línea para cada MediaItem, usando coma (,) como delimitador.
-                // Por ejemplo: titulo,descripcion,estado,tipo
                 for (MediaItem item : items) {
                     sb.append(item.getTitulo()).append(",");
                     sb.append(item.getDescripcion()).append(",");
-                    // Usamos "1" para terminado y "0" para pendiente
                     sb.append(item.isCompleted() ? "1" : "0").append(",");
-                    sb.append(item.getTipo());  // Asegúrate de que MediaItem tenga este campo si lo has añadido.
+                    sb.append(item.getTipo());
                     sb.append("\n");
                 }
                 String data = sb.toString();
 
-                // Elegir una ubicación para el archivo. Aquí usamos el directorio de archivos externos privados.
-                File file = new File(getExternalFilesDir(null), "media_export.txt");
-                try (FileOutputStream fos = new FileOutputStream(file)) {
-                    fos.write(data.getBytes());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    // Opcional: mostrar un mensaje de error en la UI.
+                try {
+                    // Usa ContentResolver para abrir un OutputStream con el URI
+                    if (uri != null) {
+                        FileOutputStream fos = (FileOutputStream) getContentResolver().openOutputStream(uri);
+                        if (fos != null) {
+                            fos.write(data.getBytes());
+                            fos.close();
+                        }
+                    }
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(MainActivity.this, "Error exportando datos", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, "Datos exportados correctamente.", Toast.LENGTH_LONG).show();
                         }
                     });
-                    return;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MainActivity.this, "Error exportando datos.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
-
-                // Mostrar un mensaje en la UI indicando que se exportó correctamente.
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(MainActivity.this, "Datos exportados a: " + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
-                    }
-                });
             }
         });
     }
 
 
-    private void importDataFromFile() {
+    private void exportDataUsingPicker() {
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TITLE, "media_export.txt"); // Nombre sugerido
+        startActivityForResult(intent, EXPORT_REQUEST_CODE);
+    }
+
+    private void importDataFromUri(Uri uri) {
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
-                // Ubicación del archivo que exportamos anteriormente
-                File file = new File(getExternalFilesDir(null), "media_export.txt");
-                if (!file.exists()) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(MainActivity.this, "Archivo no encontrado", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                    return;
-                }
-
-                try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                try {
+                    InputStream is = getContentResolver().openInputStream(uri);
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
                     String line;
-                    while ((line = reader.readLine()) != null) {
-                        // Separamos la línea por comas
+                    while ((line = bufferedReader.readLine()) != null) {
                         String[] parts = line.split(",");
                         if (parts.length >= 4) {
                             String titulo = parts[0];
@@ -198,27 +199,36 @@ public class MainActivity extends AppCompatActivity implements
                             dao.insertItem(item);
                         }
                     }
+                    bufferedReader.close();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MainActivity.this, "Datos importados correctamente.", Toast.LENGTH_SHORT).show();
+                            cargarDatos();
+                        }
+                    });
                 } catch (IOException e) {
                     e.printStackTrace();
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(MainActivity.this, "Error importando datos", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, "Error importando datos.", Toast.LENGTH_SHORT).show();
                         }
                     });
-                    return;
                 }
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(MainActivity.this, "Datos importados", Toast.LENGTH_SHORT).show();
-                        cargarDatos();  // Actualiza la lista con los datos importados
-                    }
-                });
             }
         });
     }
+
+
+
+    private void importDataUsingPicker() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("text/plain");
+        startActivityForResult(intent, IMPORT_REQUEST_CODE);
+    }
+
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -329,6 +339,23 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == EXPORT_REQUEST_CODE && resultCode == RESULT_OK) {
+            if (data != null) {
+                Uri uri = data.getData();
+                exportDataToUri(uri);
+            }
+        } else if (requestCode == IMPORT_REQUEST_CODE && resultCode == RESULT_OK) {
+            if (data != null) {
+                Uri uri = data.getData();
+                importDataFromUri(uri);
+            }
+        }
+    }
+
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_settings) {
@@ -336,14 +363,15 @@ public class MainActivity extends AppCompatActivity implements
             startActivity(intent);
             return true;
         } else if (id == R.id.action_export) {
-            exportDataToFile();
+            exportDataUsingPicker();
             return true;
         } else if (id == R.id.action_import) {
-            importDataFromFile();
+            importDataUsingPicker();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
+
 
     private void actualizarExtraInfo() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
