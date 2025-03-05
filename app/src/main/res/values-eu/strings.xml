@@ -24,4 +24,6 @@
     <string name="action_export">Datuak esportatu</string>
     <string name="action_import">Datuak inportatu</string>
 
+    <string name="share">Partekatu</string>
+
 </resources>

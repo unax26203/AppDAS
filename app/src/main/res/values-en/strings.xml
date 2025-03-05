@@ -24,4 +24,5 @@
     <string name="action_export">Export data</string>
     <string name="action_import">Import data</string>
 
+    <string name="share">Share</string>
 </resources>
