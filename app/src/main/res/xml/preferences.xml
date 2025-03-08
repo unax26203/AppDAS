@@ -1,29 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Preferencia para elegir el tema -->
     <ListPreference
         android:key="theme_preference"
-        android:title="Selecciona el tema"
-        android:summary="Elige entre Light y Dark"
+        android:title="@string/pref_title_theme"
+        android:summary="@string/pref_summary_theme"
         android:entries="@array/theme_entries"
         android:entryValues="@array/theme_values"
         android:defaultValue="light" />
 
-    <!-- Preferencia para mostrar/ocultar información extra -->
     <SwitchPreferenceCompat
         android:key="show_extra_info"
-        android:title="Mostrar información extra"
-        android:summary="Decide si se muestran detalles adicionales en la app"
+        android:title="@string/pref_title_extra_info"
+        android:summary="@string/pref_summary_extra_info"
         android:defaultValue="true" />
 
-    <!-- Preferencia para elegir el idioma -->
     <ListPreference
         android:key="language_preference"
-        android:title="Selecciona el idioma"
-        android:summary="Elige entre Español, English y Euskera"
+        android:title="@string/pref_title_language"
+        android:summary="@string/pref_summary_language"
         android:entries="@array/language_entries"
         android:entryValues="@array/language_values"
         android:defaultValue="es" />
 
 </PreferenceScreen>
+

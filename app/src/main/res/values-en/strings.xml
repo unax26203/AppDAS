@@ -31,4 +31,14 @@
 
     <string name="tipo_contenido">Content type</string>
 
+    <string name="pref_title_theme">Select theme</string>
+    <string name="pref_summary_theme">Choose between Light and Dark</string>
+
+    <string name="pref_title_extra_info">Show extra info</string>
+    <string name="pref_summary_extra_info">Decide if additional details are displayed in the app</string>
+
+    <string name="pref_title_language">Select language</string>
+    <string name="pref_summary_language">Choose between Spanish, English, and Basque</string>
+
+
 </resources>

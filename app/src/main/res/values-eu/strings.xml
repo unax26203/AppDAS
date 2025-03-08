@@ -31,5 +31,15 @@
 
     <string name="tipo_contenido">Eduki mota</string>
 
+    <string name="pref_title_theme">Gaia aukeratu</string>
+    <string name="pref_summary_theme">Light edo Dark aukeratu</string>
+
+    <string name="pref_title_extra_info">Informazio gehigarria erakutsi</string>
+    <string name="pref_summary_extra_info">Erabaki app-an xehetasun gehigarriak erakusten diren</string>
+
+    <string name="pref_title_language">Hizkuntza aukeratu</string>
+    <string name="pref_summary_language">Aukeratu Español, English edo Euskera</string>
+
+
 
 </resources>
