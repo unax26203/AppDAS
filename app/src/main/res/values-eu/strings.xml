@@ -26,4 +26,10 @@
 
     <string name="share">Partekatu</string>
 
+    <string name="terminada">Amaituta</string>
+    <string name="pendiente">Itxaroten</string>
+
+    <string name="tipo_contenido">Eduki mota</string>
+
+
 </resources>

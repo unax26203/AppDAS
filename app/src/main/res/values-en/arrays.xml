@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="tipo_entries">
+        <item>Book</item>
+        <item>Movie</item>
+    </string-array>
+    <string-array name="tipo_values">
+        <item>book</item>
+        <item>movie</item>
+    </string-array>
+</resources>

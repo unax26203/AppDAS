@@ -38,6 +38,7 @@ public class EditarMediaDialog extends DialogFragment {
         args.putString(ARG_TITULO, item.getTitulo());
         args.putString(ARG_DESCRIPCION, item.getDescripcion());
         args.putBoolean(ARG_ESTADO, item.isCompleted());
+        args.putString(ARG_TIPO, item.getTipo());
         fragment.setArguments(args);
         return fragment;
     }

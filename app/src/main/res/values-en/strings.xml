@@ -25,4 +25,10 @@
     <string name="action_import">Import data</string>
 
     <string name="share">Share</string>
+
+    <string name="terminada">Completed</string>
+    <string name="pendiente">Pending</string>
+
+    <string name="tipo_contenido">Content type</string>
+
 </resources>
