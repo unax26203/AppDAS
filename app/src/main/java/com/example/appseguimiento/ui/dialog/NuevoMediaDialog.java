@@ -18,7 +18,7 @@ public class NuevoMediaDialog extends DialogFragment {
     }
 
     private NuevoMediaDialogListener listener;
-
+    // Argumentos para el diálogo
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         try {
@@ -30,6 +30,7 @@ public class NuevoMediaDialog extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(getString(R.string.dialog_new_title)); // Asegúrate de tenerlo en strings.xml
 
+        // Inflar el layout del diálogo
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.dialog_nuevo_media, null);
         final EditText etTitulo = view.findViewById(R.id.etTitulo);

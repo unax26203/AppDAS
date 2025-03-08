@@ -23,7 +23,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
         Objects.requireNonNull(getPreferenceScreen().getSharedPreferences())
                 .registerOnSharedPreferenceChangeListener(this);
     }
-
     @Override
     public void onPause() {
         super.onPause();
@@ -34,8 +33,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         assert key != null;
+        // Si la preferencia es "language_preference", recrear la actividad
         if (key.equals("language_preference")) {
-            // Opcional: reiniciar la actividad principal para aplicar el nuevo idioma.
             requireActivity().recreate();
         }
     }

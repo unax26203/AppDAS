@@ -34,12 +34,12 @@ public class LoginActivity extends AppCompatActivity {
 
         db = AppDatabase.getDatabase(this);
         userDao = db.userDao();
-
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 final String username = etUsername.getText().toString().trim();
                 final String password = etPassword.getText().toString().trim();
+                // Verificar que los campos no estén vacíos
                 if(username.isEmpty() || password.isEmpty()){
                     Toast.makeText(LoginActivity.this, "Complete ambos campos", Toast.LENGTH_SHORT).show();
                     return;
@@ -51,12 +51,14 @@ public class LoginActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                // Verificar si el usuario existe
                                 if(user != null) {
                                     Toast.makeText(LoginActivity.this, "Login exitoso", Toast.LENGTH_SHORT).show();
                                     // Ir a MainActivity
                                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                     startActivity(intent);
                                     finish();
+                                 // En caso de que las credenciales sean incorrectas
                                 } else {
                                     Toast.makeText(LoginActivity.this, "Credenciales incorrectas", Toast.LENGTH_SHORT).show();
                                 }
@@ -72,6 +74,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View view) {
                 final String username = etUsername.getText().toString().trim();
                 final String password = etPassword.getText().toString().trim();
+                // Verificar que los campos no estén vacíos
                 if(username.isEmpty() || password.isEmpty()){
                     Toast.makeText(LoginActivity.this, "Complete ambos campos", Toast.LENGTH_SHORT).show();
                     return;
@@ -83,6 +86,7 @@ public class LoginActivity extends AppCompatActivity {
                         User existing = userDao.getUserByUsername(username);
                         if(existing != null) {
                             runOnUiThread(new Runnable() {
+                                // Mostrar un mensaje si el usuario ya existe
                                 @Override
                                 public void run() {
                                     Toast.makeText(LoginActivity.this, "El usuario ya existe", Toast.LENGTH_SHORT).show();
@@ -92,6 +96,7 @@ public class LoginActivity extends AppCompatActivity {
                             User newUser = new User(username, password);
                             userDao.insertUser(newUser);
                             runOnUiThread(new Runnable() {
+                                // Mostrar un mensaje si el registro fue exitoso
                                 @Override
                                 public void run() {
                                     Toast.makeText(LoginActivity.this, "Registro exitoso", Toast.LENGTH_SHORT).show();

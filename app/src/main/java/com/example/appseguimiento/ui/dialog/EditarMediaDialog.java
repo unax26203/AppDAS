@@ -42,7 +42,7 @@ public class EditarMediaDialog extends DialogFragment {
         fragment.setArguments(args);
         return fragment;
     }
-
+    // Crear el diálogo
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         try {
@@ -80,7 +80,7 @@ public class EditarMediaDialog extends DialogFragment {
                 startActivity(Intent.createChooser(shareIntent, getString(R.string.share)));
             }
         });
-
+        // Crear el diálogo con los botones
         builder.setView(view)
                 .setPositiveButton(getString(R.string.dialog_edit_positive), (dialog, id) -> {
                     int idItem = getArguments().getInt(ARG_ID);

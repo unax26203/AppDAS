@@ -20,12 +20,12 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaViewHol
     public interface OnItemClickListener {
         void onItemClick(MediaItem item);
     }
-
+    // Constructor
     public MediaAdapter(List<MediaItem> lista, OnItemClickListener listener) {
         this.lista = lista;
         this.listener = listener;
     }
-
+    // Métodos de RecyclerView.Adapter
     @Override
     public MediaViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_media, parent, false);
@@ -76,7 +76,7 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaViewHol
         this.lista = newList;
         notifyDataSetChanged();
     }
-
+    // Clase interna MediaViewHolder
     class MediaViewHolder extends RecyclerView.ViewHolder {
         TextView tvTitulo, tvDescripcion, tvEstado;
         ImageView ivTipo;

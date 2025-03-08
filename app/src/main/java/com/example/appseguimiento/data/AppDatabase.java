@@ -16,14 +16,14 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract UserDao userDao();
 
     private static volatile AppDatabase INSTANCE;
-
+    // Migración para añadir el campo tipo a la tabla de elementos multimedia
     public static final Migration MIGRATION_1_2 = new Migration(1, 2) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("ALTER TABLE media_items ADD COLUMN tipo TEXT");
         }
     };
-
+    // Migración para crear la tabla de usuarios
     public static final Migration MIGRATION_2_3 = new Migration(2, 3) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
@@ -34,7 +34,7 @@ public abstract class AppDatabase extends RoomDatabase {
                     "`password` TEXT)");
         }
     };
-
+    // Función para obtener la instancia de la base de datos
     public static AppDatabase getDatabase(final Context context) {
         if (INSTANCE == null) {
             synchronized (AppDatabase.class) {

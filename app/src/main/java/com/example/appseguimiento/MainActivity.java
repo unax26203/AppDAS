@@ -59,13 +59,14 @@ public class MainActivity extends AppCompatActivity implements
     private String currentLanguage;
     private String currentTheme;
 
+    // Códigos de solicitud para exportar e importar
     private static final int EXPORT_REQUEST_CODE = 1;
     private static final int IMPORT_REQUEST_CODE = 2;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
+        // Cargar preferencias de idioma y tema
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         currentLanguage = prefs.getString("language_preference", "es");
         Locale locale = new Locale(currentLanguage);
@@ -99,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements
         dao = db.mediaDao();
         fm = getSupportFragmentManager();
         cargarDatos();
-
+        // Configurar el FAB para agregar nuevos ítems
         FloatingActionButton fabAdd = findViewById(R.id.fabAdd);
         fabAdd.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
 
-    // Método para cargar datos en background
+    // Función para cargar los datos de la base de datos en el RecyclerView
     private void cargarDatos() {
         AsyncTask.execute(new Runnable() {
             @Override
@@ -127,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
     }
-
+    // Función para exportar los datos a un archivo de texto
     private void exportDataToUri(Uri uri) {
         AsyncTask.execute(new Runnable() {
             @Override
@@ -170,8 +171,6 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
     }
-
-
     private void exportDataUsingPicker() {
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -179,11 +178,12 @@ public class MainActivity extends AppCompatActivity implements
         intent.putExtra(Intent.EXTRA_TITLE, "media_export.txt"); // Nombre sugerido
         startActivityForResult(intent, EXPORT_REQUEST_CODE);
     }
-
+    // Función para importar datos desde un archivo de texto
     private void importDataFromUri(Uri uri) {
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
+                // Lee el archivo línea por línea y agrega los elementos a la base de datos
                 try {
                     InputStream is = getContentResolver().openInputStream(uri);
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
@@ -201,6 +201,7 @@ public class MainActivity extends AppCompatActivity implements
                     }
                     bufferedReader.close();
                     runOnUiThread(new Runnable() {
+                        // Actualiza la UI después de importar los datos
                         @Override
                         public void run() {
                             Toast.makeText(MainActivity.this, "Datos importados correctamente.", Toast.LENGTH_SHORT).show();
@@ -208,6 +209,7 @@ public class MainActivity extends AppCompatActivity implements
                         }
                     });
                 } catch (IOException e) {
+                    // Maneja cualquier error de lectura del archivo
                     e.printStackTrace();
                     runOnUiThread(new Runnable() {
                         @Override
@@ -229,7 +231,7 @@ public class MainActivity extends AppCompatActivity implements
         startActivityForResult(intent, IMPORT_REQUEST_CODE);
     }
 
-
+    // Para cambiar el idioma de la app
     @Override
     protected void attachBaseContext(Context newBase) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(newBase);
@@ -245,7 +247,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
 
-
+    // Para actualizar el idioma y el tema de la app
     @Override
     protected void onResume() {
         super.onResume();
@@ -308,7 +310,7 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
     }
-
+    // Callback para borrar un ítem
     @Override
     public void onMediaDeleted(final MediaItem item) {
         AsyncTask.execute(new Runnable() {
@@ -331,13 +333,12 @@ public class MainActivity extends AppCompatActivity implements
         EditarMediaDialog dialog = EditarMediaDialog.newInstance(item);
         dialog.show(fm, "EditarMediaDialog");
     }
-
+    // Para mostrar el menú de opciones en el Toolbar
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -354,7 +355,7 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-
+    // Para manejar las acciones del menú
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -372,7 +373,7 @@ public class MainActivity extends AppCompatActivity implements
         return super.onOptionsItemSelected(item);
     }
 
-
+    // función para actualizar la visibilidad de la información extra
     private void actualizarExtraInfo() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         boolean showExtraInfo = prefs.getBoolean("show_extra_info", true);

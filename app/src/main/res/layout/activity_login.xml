@@ -5,13 +5,14 @@
     android:padding="24dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
+    <!-- EditText para el usuario -->
     <EditText
         android:id="@+id/etUsername"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Usuario"/>
 
+    <!-- EditText para la contraseña -->
     <EditText
         android:id="@+id/etPassword"
         android:layout_width="match_parent"
@@ -20,6 +21,7 @@
         android:inputType="textPassword"
         android:layout_marginTop="8dp"/>
 
+    <!-- Botones para el login y el registro -->
     <Button
         android:id="@+id/btnLogin"
         android:layout_width="match_parent"
