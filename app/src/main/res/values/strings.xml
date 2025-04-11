@@ -1,0 +1,45 @@
+<resources>
+    <string name="app_name">Seguimiento Libros y Películas</string>
+    <string name="add_item">Añadir ítem</string>
+    <string name="edit_item">Editar ítem</string>
+    <string name="change_language">Cambiar idioma</string>
+    <string name="select_language">Selecciona el idioma</string>
+
+    <!-- Cadenas para diálogos -->
+    <string name="dialog_edit_title">Editar: </string>
+    <string name="dialog_edit_positive">Actualizar</string>
+    <string name="dialog_edit_negative">Cancelar</string>
+    <string name="dialog_edit_neutral">Borrar</string>
+
+    <string name="dialog_new_title">Nuevo Libro/Película</string>
+    <string name="dialog_new_positive">Guardar</string>
+    <string name="dialog_new_negative">Cancelar</string>
+
+    <string name="extra_info">Instrucciones: Para añadir un libro o película, pulsa el botón de añadir. Para editar o borrar un elemento, tócalo en la lista. Usa el menú para cambiar el idioma y los ajustes para modificar el tema.</string>
+
+    <string name="hint_title">Título</string>
+    <string name="hint_description">Descripción</string>
+
+    <string name="action_settings">Ajustes</string>
+    <string name="action_export">Exportar datos</string>
+    <string name="action_import">Importar datos</string>
+
+    <string name="share">Compartir</string>
+
+    <string name="terminada">Terminada</string>
+    <string name="pendiente">Pendiente</string>
+
+    <string name="tipo_contenido">Tipo de contenido</string>
+
+    <string name="pref_title_theme">Selecciona el tema</string>
+    <string name="pref_summary_theme">Elige entre Light y Dark</string>
+
+    <string name="pref_title_extra_info">Mostrar información extra</string>
+    <string name="pref_summary_extra_info">Decide si se muestran detalles adicionales en la app</string>
+
+    <string name="pref_title_language">Selecciona el idioma</string>
+    <string name="pref_summary_language">Elige entre Español, English y Euskera</string>
+
+
+
+</resources>

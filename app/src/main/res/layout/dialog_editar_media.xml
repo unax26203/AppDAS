@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!-- EditText para la descripcion -->
+    <EditText
+        android:id="@+id/etDescripcion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Descripción" />
+
+    <!-- Switch para el estado -->
+    <Switch
+        android:id="@+id/switchEstado"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="¿Terminado?"
+        android:layout_marginTop="8dp"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
+    <Button
+        android:id="@+id/btnShare"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/share"
+        android:layout_marginTop="16dp"/>
+</LinearLayout>

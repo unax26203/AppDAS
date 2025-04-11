@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Toolbar personalizado -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:title="@string/app_name" />
+
+    <!-- Información extra -->
+    <TextView
+        android:id="@+id/tvExtraInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/extra_info"
+        android:padding="8dp"
+        android:visibility="gone" />
+
+    <!-- RecyclerView para la lista -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvMedia"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="8dp" />
+
+    <!-- Botón flotante para añadir elementos -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_add" />
+</LinearLayout>
