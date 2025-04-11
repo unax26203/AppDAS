@@ -11,6 +11,13 @@ constraintlayout = "2.2.0"
 recyclerview = "1.4.0"
 roomRuntime = "2.6.1"
 preference = "1.2.1"
+gms-auth = "20.7.0"
+gms-maps = "18.2.0"
+gms-location = "21.3.0"
+firebase-bom = "32.7.0"
+firebase-messaging = "32.7.0"
+glide = "4.16.0"
+json-simple = "1.1.1"
 
 [libraries]
 cardview = { module = "androidx.cardview:cardview", version.ref = "cardview" }
@@ -25,6 +32,14 @@ recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "r
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 preference = { group = "androidx.preference", name = "preference", version.ref = "preference" }
+gms-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "gms-auth" }
+gms-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "gms-maps" }
+gms-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "gms-location" }
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom" }
+firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebase-messaging" }
+glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
+glide-compiler = { group = "com.github.bumptech.glide", name = "compiler", version.ref = "glide" }
+json-simple = { group = "com.googlecode.json-simple", name = "json-simple", version.ref = "json-simple" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

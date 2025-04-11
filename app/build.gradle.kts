@@ -53,4 +53,14 @@ dependencies {
 
     // Para CardView
     implementation(libs.cardview)
+
+    // Dependencias añadidas para la segunda entrega
+    implementation(libs.gms.auth)
+    implementation(libs.gms.maps)
+    implementation(libs.gms.location)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
+    implementation(libs.glide)
+    annotationProcessor(libs.glide.compiler)
+    implementation(libs.json.simple)
 }
