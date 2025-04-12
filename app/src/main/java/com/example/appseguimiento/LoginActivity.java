@@ -2,25 +2,23 @@ package com.example.appseguimiento;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import androidx.appcompat.app.AppCompatActivity;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.appseguimiento.data.AppDatabase;
-import com.example.appseguimiento.data.User;
-import com.example.appseguimiento.data.UserDao;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+
+import com.example.appseguimiento.workers.RemoteLoginWorker;
+import com.example.appseguimiento.workers.RemoteRegisterWorker;
 
 public class LoginActivity extends AppCompatActivity {
 
     private EditText etUsername, etPassword;
     private Button btnLogin, btnRegister;
-    private UserDao userDao;
-    private AppDatabase db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,80 +30,78 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin = findViewById(R.id.btnLogin);
         btnRegister = findViewById(R.id.btnRegister);
 
-        db = AppDatabase.getDatabase(this);
-        userDao = db.userDao();
-        btnLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                final String username = etUsername.getText().toString().trim();
-                final String password = etPassword.getText().toString().trim();
-                // Verificar que los campos no estén vacíos
-                if(username.isEmpty() || password.isEmpty()){
-                    Toast.makeText(LoginActivity.this, "Complete ambos campos", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                AsyncTask.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        User user = userDao.login(username, password);
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                // Verificar si el usuario existe
-                                if(user != null) {
-                                    Toast.makeText(LoginActivity.this, "Login exitoso", Toast.LENGTH_SHORT).show();
-                                    // Ir a MainActivity
-                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                    startActivity(intent);
-                                    finish();
-                                 // En caso de que las credenciales sean incorrectas
-                                } else {
-                                    Toast.makeText(LoginActivity.this, "Credenciales incorrectas", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
-                    }
-                });
+        btnLogin.setOnClickListener(view -> {
+            String nombre = etUsername.getText().toString().trim();
+            String password = etPassword.getText().toString().trim();
+
+            if (nombre.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Complete ambos campos", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            Data datos = new Data.Builder()
+                    .putString("nombre", nombre)
+                    .putString("password", password)
+                    .build();
+
+            OneTimeWorkRequest loginRequest = new OneTimeWorkRequest.Builder(RemoteLoginWorker.class)
+                    .setInputData(datos)
+                    .build();
+
+            WorkManager.getInstance(this).getWorkInfoByIdLiveData(loginRequest.getId())
+                    .observe(this, workInfo -> {
+                        if (workInfo != null && workInfo.getState().isFinished()) {
+                            String resultado = workInfo.getOutputData().getString("resultado");
+
+                            if ("OK".equals(resultado)) {
+                                SharedPreferences prefs = getSharedPreferences("miAppPrefs", MODE_PRIVATE);
+                                SharedPreferences.Editor editor = prefs.edit();
+                                editor.putString("nombre", workInfo.getOutputData().getString("nombre"));
+                                editor.putInt("id", workInfo.getOutputData().getInt("id", -1));
+                                editor.apply();
+
+                                Toast.makeText(this, "Login exitoso", Toast.LENGTH_SHORT).show();
+                                startActivity(new Intent(this, MainActivity.class));
+                                finish();
+                            } else {
+                                String msg = workInfo.getOutputData().getString("msg");
+                                Toast.makeText(this, "Error: " + msg, Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+
+            WorkManager.getInstance(this).enqueue(loginRequest);
         });
 
-        btnRegister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                final String username = etUsername.getText().toString().trim();
-                final String password = etPassword.getText().toString().trim();
-                // Verificar que los campos no estén vacíos
-                if(username.isEmpty() || password.isEmpty()){
-                    Toast.makeText(LoginActivity.this, "Complete ambos campos", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                AsyncTask.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        // Primero, verificamos si el usuario ya existe
-                        User existing = userDao.getUserByUsername(username);
-                        if(existing != null) {
-                            runOnUiThread(new Runnable() {
-                                // Mostrar un mensaje si el usuario ya existe
-                                @Override
-                                public void run() {
-                                    Toast.makeText(LoginActivity.this, "El usuario ya existe", Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                        } else {
-                            User newUser = new User(username, password);
-                            userDao.insertUser(newUser);
-                            runOnUiThread(new Runnable() {
-                                // Mostrar un mensaje si el registro fue exitoso
-                                @Override
-                                public void run() {
-                                    Toast.makeText(LoginActivity.this, "Registro exitoso", Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                        }
-                    }
-                });
+        btnRegister.setOnClickListener(view -> {
+            String nombre = etUsername.getText().toString().trim();
+            String password = etPassword.getText().toString().trim();
+
+            if (nombre.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Complete ambos campos", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            Data datos = new Data.Builder()
+                    .putString("nombre", nombre)
+                    .putString("password", password)
+                    .build();
+
+            OneTimeWorkRequest registerRequest = new OneTimeWorkRequest.Builder(RemoteRegisterWorker.class)
+                    .setInputData(datos)
+                    .build();
+
+            WorkManager.getInstance(this).getWorkInfoByIdLiveData(registerRequest.getId())
+                    .observe(this, workInfo -> {
+                        if (workInfo != null && workInfo.getState().isFinished()) {
+                            String resultado = workInfo.getOutputData().getString("resultado");
+                            Toast.makeText(this,
+                                    "OK".equals(resultado) ? "Registro exitoso" : "Error al registrar",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+            WorkManager.getInstance(this).enqueue(registerRequest);
         });
     }
 }
