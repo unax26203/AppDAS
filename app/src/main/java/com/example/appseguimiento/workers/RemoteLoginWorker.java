@@ -27,7 +27,7 @@ public class RemoteLoginWorker extends Worker {
         String password = getInputData().getString("password");
 
         try {
-            // Dirección del servidor
+            //URL del archivo PHP de inicio de sesión
             URL url = new URL("http://ec2-51-44-167-78.eu-west-3.compute.amazonaws.com/uzardoya001/WEB/login.php");
 
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
