@@ -32,6 +32,12 @@ android {
     }
 }
 
+configurations.all {
+    resolutionStrategy.dependencySubstitution {
+        substitute(module("org.hamcrest:hamcrest-core:1.1")).using(module("junit:junit:4.10"))
+    }
+}
+
 dependencies {
 
     implementation(libs.appcompat)
@@ -62,8 +68,12 @@ dependencies {
     implementation(libs.gms.location)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.messaging)
+    implementation(libs.firebase.analytics)
     implementation(libs.glide)
     annotationProcessor(libs.glide.compiler)
     implementation(libs.json.simple)
+
+    testImplementation(libs.junit)
+
 
 }

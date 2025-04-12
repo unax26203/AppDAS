@@ -51,9 +51,9 @@ public class LoginActivity extends AppCompatActivity {
             WorkManager.getInstance(this).getWorkInfoByIdLiveData(loginRequest.getId())
                     .observe(this, workInfo -> {
                         if (workInfo != null && workInfo.getState().isFinished()) {
-                            String resultado = workInfo.getOutputData().getString("resultado");
+                            boolean success = workInfo.getOutputData().getBoolean("success", false);
 
-                            if ("OK".equals(resultado)) {
+                            if (success) {
                                 SharedPreferences prefs = getSharedPreferences("miAppPrefs", MODE_PRIVATE);
                                 SharedPreferences.Editor editor = prefs.edit();
                                 editor.putString("nombre", workInfo.getOutputData().getString("nombre"));
@@ -64,7 +64,7 @@ public class LoginActivity extends AppCompatActivity {
                                 startActivity(new Intent(this, MainActivity.class));
                                 finish();
                             } else {
-                                String msg = workInfo.getOutputData().getString("msg");
+                                String msg = workInfo.getOutputData().getString("error");
                                 Toast.makeText(this, "Error: " + msg, Toast.LENGTH_SHORT).show();
                             }
                         }

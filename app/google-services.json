@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "224029497075",
+    "project_id": "appdas-34457",
+    "storage_bucket": "appdas-34457.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:224029497075:android:e110121e88043ed18c8986",
+        "android_client_info": {
+          "package_name": "com.example.appseguimiento"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB3nMs1PfWWz9Nq4CZEXot8gG9wEOq1mKI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

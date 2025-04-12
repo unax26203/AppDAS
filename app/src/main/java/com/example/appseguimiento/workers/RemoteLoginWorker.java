@@ -23,8 +23,8 @@ public class RemoteLoginWorker extends Worker {
     @Override
     public Result doWork() {
         // Datos de entrada
-        String email = getInputData().getString("email");
         String password = getInputData().getString("password");
+        String nombre = getInputData().getString("nombre");
 
         try {
             //URL del archivo PHP de inicio de sesión
@@ -38,7 +38,8 @@ public class RemoteLoginWorker extends Worker {
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
             // Parámetros de la solicitud
-            String parametros = "email=" + email + "&password=" + password;
+            String parametros = "nombre=" + java.net.URLEncoder.encode(nombre, "UTF-8")
+                    + "&password=" + java.net.URLEncoder.encode(password, "UTF-8");
 
             OutputStream os = conn.getOutputStream();
             os.write(parametros.getBytes());
@@ -62,7 +63,6 @@ public class RemoteLoginWorker extends Worker {
 
             if (status.equals("OK")) {
                 // Datos del usuario
-                String nombre = json.getString("nombre");
                 int id = json.getInt("id");
 
                 Data output = new Data.Builder()

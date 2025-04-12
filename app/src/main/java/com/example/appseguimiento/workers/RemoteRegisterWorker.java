@@ -1,6 +1,7 @@
 package com.example.appseguimiento.workers;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.work.Data;
@@ -29,12 +30,16 @@ public class RemoteRegisterWorker extends Worker {
         String email = getInputData().getString("email");
         String password = getInputData().getString("password");
 
+        if (nombre == null  || password == null) {
+            Log.e("RemoteRegisterWorker", "Campos vacíos: nombre=" + nombre +  ", password=" + password);
+            return Result.failure();
+        }
+
         HttpURLConnection urlConnection = null;
         String resultado = "";
 
         try {
-            // URL del archivo PHP de registro
-            URL destino = new URL("http://ec2-51-44-167-78.eu-west-3.compute.amazonaws.com/puzardoya001/WEB/register.php");
+            URL destino = new URL("http://ec2-51-44-167-78.eu-west-3.compute.amazonaws.com/uzardoya001/WEB/register.php");
             urlConnection = (HttpURLConnection) destino.openConnection();
             urlConnection.setConnectTimeout(5000);
             urlConnection.setReadTimeout(5000);
@@ -42,18 +47,14 @@ public class RemoteRegisterWorker extends Worker {
             urlConnection.setDoOutput(true);
             urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
-            // Codificar parámetros
             String parametros = "nombre=" + URLEncoder.encode(nombre, "UTF-8")
-                    + "&email=" + URLEncoder.encode(email, "UTF-8")
                     + "&password=" + URLEncoder.encode(password, "UTF-8");
 
-            // Enviar al servidor
             OutputStream os = urlConnection.getOutputStream();
             os.write(parametros.getBytes("UTF-8"));
             os.flush();
             os.close();
 
-            // Recoger respuesta
             int statusCode = urlConnection.getResponseCode();
             if (statusCode == 200) {
                 InputStream inputStream = new BufferedInputStream(urlConnection.getInputStream());
@@ -79,6 +80,8 @@ public class RemoteRegisterWorker extends Worker {
         Data output = new Data.Builder()
                 .putString("resultado", resultado)
                 .build();
+        Log.d("RemoteRegisterWorker", "Respuesta del servidor: " + resultado);
+
 
         return Result.success(output);
     }

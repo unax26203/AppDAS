@@ -7,16 +7,15 @@ junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 appcompat = "1.7.0"
 material = "1.12.0"
-activity = "1.10.0"
-constraintlayout = "2.2.0"
+activity = "1.10.1"
+constraintlayout = "2.2.1"
 recyclerview = "1.4.0"
-roomRuntime = "2.6.1"
+roomRuntime = "2.7.0"
 preference = "1.2.1"
-gms-auth = "20.7.0"
-gms-maps = "18.2.0"
+gms-auth = "21.3.0"
+gms-maps = "19.1.0"
 gms-location = "21.3.0"
-firebase-bom = "32.7.0"
-firebase-messaging = "32.7.0"
+firebase-bom = "33.12.0"
 glide = "4.16.0"
 json-simple = "1.1.1"
 workRuntime = "2.10.0"
@@ -39,7 +38,8 @@ gms-auth = { group = "com.google.android.gms", name = "play-services-auth", vers
 gms-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "gms-maps" }
 gms-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "gms-location" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom" }
-firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebase-messaging" }
+firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 glide-compiler = { group = "com.github.bumptech.glide", name = "compiler", version.ref = "glide" }
 json-simple = { group = "com.googlecode.json-simple", name = "json-simple", version.ref = "json-simple" }
