@@ -40,7 +40,8 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDcJ40bAyUuThZveAVLVqh_av2vV4bxZQk" />
+            android:value="${MAPS_API_KEY}" />
+
 
         <!-- MainActivity ya no es la principal, solo se define -->
         <activity android:name=".MainActivity" />

@@ -1,11 +1,14 @@
+
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.secrets)
     id("com.google.gms.google-services")
 }
 
 android {
     namespace = "com.example.appseguimiento"
     compileSdk = 35
+
 
     defaultConfig {
         applicationId = "com.example.appseguimiento"
@@ -14,16 +17,23 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        manifestPlaceholders["MAPS_API_KEY"] = project.findProperty("MAPS_API_KEY") ?: ""
+    }
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "MAPS_API_KEY", "\"${project.findProperty("MAPS_API_KEY")}\"")
+        }
         release {
+            buildConfigField("String", "MAPS_API_KEY", "\"${project.findProperty("MAPS_API_KEY")}\"")
             isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
     compileOptions {
@@ -37,6 +47,9 @@ configurations.all {
         substitute(module("org.hamcrest:hamcrest-core:1.1")).using(module("junit:junit:4.10"))
     }
 }
+
+
+
 
 dependencies {
 
@@ -72,6 +85,8 @@ dependencies {
     implementation(libs.glide)
     annotationProcessor(libs.glide.compiler)
     implementation(libs.json.simple)
+    implementation(libs.google.places)
+    implementation(libs.volley)
 
     testImplementation(libs.junit)
 

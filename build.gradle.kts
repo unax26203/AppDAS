@@ -8,3 +8,11 @@ buildscript {
         classpath(libs.google.services)
     }
 }
+
+val secretsFile = rootProject.file("secrets.properties")
+if (secretsFile.exists()) {
+    secretsFile.forEachLine { line ->
+        val (key, value) = line.split("=")
+        project.extensions.extraProperties[key.trim()] = value.trim()
+    }
+}
