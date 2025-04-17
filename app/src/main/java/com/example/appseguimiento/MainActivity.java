@@ -1,5 +1,7 @@
 package com.example.appseguimiento;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -24,6 +26,11 @@ import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.appseguimiento.data.AppDatabase;
 import com.example.appseguimiento.data.MediaItem;
 import com.example.appseguimiento.data.MediaDao;
@@ -34,14 +41,23 @@ import com.example.appseguimiento.utils.NotificacionesHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.messaging.FirebaseMessaging;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity implements
         NuevoMediaDialog.NuevoMediaDialogListener,
@@ -50,9 +66,14 @@ public class MainActivity extends AppCompatActivity implements
 
     private RecyclerView rvMedia;
     private MediaAdapter adapter;
-    private MediaDao dao;
-    private AppDatabase db;
     private FragmentManager fm;
+
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
+
+    private ActivityResultLauncher<Intent> exportLauncher;
+
+    private ActivityResultLauncher<Intent> importLauncher;
+
 
     private String currentLanguage;
     private String currentTheme;
@@ -62,16 +83,11 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences prefs = getSharedPreferences("app_preferences", Context.MODE_PRIVATE);
         currentLanguage = prefs.getString("language_preference", "es");
-        Locale locale = new Locale(currentLanguage);
-        Locale.setDefault(locale);
-        Configuration config = new Configuration(getResources().getConfiguration());
-        config.setLocale(locale);
-        getResources().updateConfiguration(config, getResources().getDisplayMetrics());
 
         currentTheme = prefs.getString("theme_preference", "light");
-        if (currentTheme.equals("dark")) {
+        if ("dark".equals(currentTheme)) {
             setTheme(R.style.AppTheme_Dark);
         } else {
             setTheme(R.style.AppTheme_Light);
@@ -88,8 +104,6 @@ public class MainActivity extends AppCompatActivity implements
         adapter = new MediaAdapter(new ArrayList<>(), this);
         rvMedia.setAdapter(adapter);
 
-        db = AppDatabase.getDatabase(this);
-        dao = db.mediaDao();
         fm = getSupportFragmentManager();
         cargarDatos();
 
@@ -101,7 +115,6 @@ public class MainActivity extends AppCompatActivity implements
 
         actualizarExtraInfo();
 
-        //Obtener el token de FCM al iniciar la app
         FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(task -> {
                     if (!task.isSuccessful()) {
@@ -111,7 +124,24 @@ public class MainActivity extends AppCompatActivity implements
                     String token = task.getResult();
                     Log.d("FCM", "Token recibido: " + token);
                     Toast.makeText(this, "Token FCM copiado a logcat", Toast.LENGTH_LONG).show();
-                    // Aquí puedes enviarlo a un servidor si lo necesitas
+                });
+
+        exportLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Uri uri = result.getData().getData();
+                        exportDataToUri(uri);
+                    }
+                });
+
+        importLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Uri uri = result.getData().getData();
+                        importDataFromUri(uri);
+                    }
                 });
 
         Button btnAbrirMapa = findViewById(R.id.btnAbrirMapa);
@@ -122,36 +152,92 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void cargarDatos() {
-        AsyncTask.execute(() -> {
-            List<MediaItem> lista = dao.getAllItems();
-            runOnUiThread(() -> adapter.updateList(lista));
+        executor.execute(() -> {
+            List<MediaItem> lista = new ArrayList<>();
+
+            try {
+                URL url = new URL("http://ec2-51-44-167-78.eu-west-3.compute.amazonaws.com/uzardoya001/WEB/get_media.php");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setConnectTimeout(5000);
+                conn.setReadTimeout(5000);
+                conn.setRequestProperty("Content-Type", "application/json");
+
+                int responseCode = conn.getResponseCode();
+                InputStream is = (responseCode == 200) ? conn.getInputStream() : conn.getErrorStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+
+                StringBuilder responseText = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    responseText.append(line);
+                }
+
+                reader.close();
+                conn.disconnect();
+
+                //DEBUG: ver la respuesta completa
+                Log.d("HTTP_RESPONSE", "Respuesta recibida: " + responseText.toString());
+
+                JSONObject json = new JSONObject(responseText.toString());
+                if (json.has("items")) {
+                    JSONArray items = json.getJSONArray("items");
+                    for (int i = 0; i < items.length(); i++) {
+                        JSONObject obj = items.getJSONObject(i);
+                        MediaItem item = new MediaItem(
+                                obj.getString("titulo"),
+                                obj.getString("descripcion"),
+                                obj.getInt("is_completed") == 1,
+                                obj.getString("tipo")
+                        );
+                        item.setId(obj.getInt("id"));
+                        lista.add(item);
+                    }
+                } else {
+                    Log.e("HTTP_RESPONSE", "No se encontraron items. Respuesta: " + json.toString());
+                }
+
+                runOnUiThread(() -> adapter.updateList(lista));
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                runOnUiThread(() -> Toast.makeText(this, "Error cargando datos", Toast.LENGTH_SHORT).show());
+            }
         });
     }
 
-    private void exportDataToUri(Uri uri) {
-        AsyncTask.execute(() -> {
-            List<MediaItem> items = dao.getAllItems();
-            StringBuilder sb = new StringBuilder();
-            for (MediaItem item : items) {
-                sb.append(item.getTitulo()).append(",");
-                sb.append(item.getDescripcion()).append(",");
-                sb.append(item.isCompleted() ? "1" : "0").append(",");
-                sb.append(item.getTipo()).append("\n");
-            }
 
-            try {
-                if (uri != null) {
-                    FileOutputStream fos = (FileOutputStream) getContentResolver().openOutputStream(uri);
-                    if (fos != null) {
-                        fos.write(sb.toString().getBytes());
-                        fos.close();
-                    }
-                }
-                runOnUiThread(() -> Toast.makeText(this, "Datos exportados correctamente.", Toast.LENGTH_LONG).show());
-            } catch (IOException e) {
-                e.printStackTrace();
-                runOnUiThread(() -> Toast.makeText(this, "Error exportando datos.", Toast.LENGTH_SHORT).show());
-            }
+
+    private void exportDataToUri(Uri uri) {
+        executor.execute(() -> {
+            String url = "http://ec2-51-44-167-78.eu-west-3.compute.amazonaws.com/uzardoya001/WEB/get_media.php";
+            RequestQueue queue = Volley.newRequestQueue(this);
+
+            JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, url, null,
+                    response -> {
+                        try {
+                            StringBuilder sb = new StringBuilder();
+                            for (int i = 0; i < response.length(); i++) {
+                                JSONObject obj = response.getJSONObject(i);
+                                sb.append(obj.getString("titulo")).append(",")
+                                        .append(obj.getString("descripcion")).append(",")
+                                        .append(obj.getInt("isCompleted")).append(",")
+                                        .append(obj.getString("tipo")).append("\n");
+                            }
+
+                            if (uri != null) {
+                                try (FileOutputStream fos = (FileOutputStream) getContentResolver().openOutputStream(uri)) {
+                                    if (fos != null) fos.write(sb.toString().getBytes());
+                                }
+                            }
+                            runOnUiThread(() -> Toast.makeText(this, "Datos exportados correctamente.", Toast.LENGTH_LONG).show());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    },
+                    error -> runOnUiThread(() -> Toast.makeText(this, "Error exportando datos.", Toast.LENGTH_SHORT).show()));
+
+            queue.add(request);
         });
     }
 
@@ -160,11 +246,11 @@ public class MainActivity extends AppCompatActivity implements
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_TITLE, "media_export.txt");
-        startActivityForResult(intent, EXPORT_REQUEST_CODE);
+        exportLauncher.launch(intent);
     }
 
     private void importDataFromUri(Uri uri) {
-        AsyncTask.execute(() -> {
+        executor.execute(() -> {
             try {
                 InputStream is = getContentResolver().openInputStream(uri);
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
@@ -172,33 +258,63 @@ public class MainActivity extends AppCompatActivity implements
                 while ((line = bufferedReader.readLine()) != null) {
                     String[] parts = line.split(",");
                     if (parts.length >= 4) {
-                        MediaItem item = new MediaItem(parts[0], parts[1], parts[2].equals("1"), parts[3]);
-                        dao.insertItem(item);
+                        String titulo = parts[0];
+                        String descripcion = parts[1];
+                        boolean isCompleted = parts[2].equals("1");
+                        String tipo = parts[3];
+
+                        JSONObject json = new JSONObject();
+                        json.put("titulo", titulo);
+                        json.put("descripcion", descripcion);
+                        json.put("tipo", tipo);
+                        json.put("isCompleted", isCompleted ? 1 : 0);
+
+                        String url = "http://ec2-51-44-167-78.eu-west-3.compute.amazonaws.com/uzardoya001/WEB/insert_media.php";
+                        RequestQueue queue = Volley.newRequestQueue(this);
+
+                        String finalLine = line;
+                        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, json,
+                                response -> {
+                                    // Opcional: puedes loguear cada inserción
+                                },
+                                error -> {
+                                    Log.e("IMPORT", "Error insertando línea: " + finalLine, error);
+                                });
+
+                        queue.add(request);
+
+                        // Puedes añadir un pequeño delay si hay muchos items
+                        Thread.sleep(100);
                     }
                 }
+
                 bufferedReader.close();
+
                 runOnUiThread(() -> {
-                    Toast.makeText(this, "Datos importados correctamente.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Importación completada", Toast.LENGTH_SHORT).show();
                     cargarDatos();
                 });
-            } catch (IOException e) {
+
+            } catch (Exception e) {
                 e.printStackTrace();
-                runOnUiThread(() -> Toast.makeText(this, "Error importando datos.", Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> Toast.makeText(this, "Error al importar datos", Toast.LENGTH_SHORT).show());
             }
         });
     }
+
 
     private void importDataUsingPicker() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("text/plain");
-        startActivityForResult(intent, IMPORT_REQUEST_CODE);
+        importLauncher.launch(intent);
     }
 
     @Override
     protected void attachBaseContext(Context newBase) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(newBase);
+        SharedPreferences prefs = newBase.getSharedPreferences("app_preferences", Context.MODE_PRIVATE);
         String lang = prefs.getString("language_preference", "es");
+
         Locale newLocale = new Locale(lang);
         Locale.setDefault(newLocale);
 
@@ -208,10 +324,11 @@ public class MainActivity extends AppCompatActivity implements
         super.attachBaseContext(context);
     }
 
+
     @Override
     protected void onResume() {
         super.onResume();
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences prefs = getSharedPreferences("app_preferences", Context.MODE_PRIVATE);
         String newTheme = prefs.getString("theme_preference", "light");
         String newLang = prefs.getString("language_preference", "es");
 
@@ -235,31 +352,147 @@ public class MainActivity extends AppCompatActivity implements
         actualizarExtraInfo();
     }
 
+
     @Override
     public void onMediaAdded(String titulo, String descripcion, String tipo) {
-        AsyncTask.execute(() -> {
-            MediaItem nuevo = new MediaItem(titulo, descripcion, false, tipo);
-            dao.insertItem(nuevo);
-            NotificacionesHelper.mostrarNotificacion(this, "Nuevo ítem", "Añadido: " + titulo);
-            runOnUiThread(this::cargarDatos);
+        executor.execute(() -> {
+            try {
+                URL url = new URL("http://ec2-51-44-167-78.eu-west-3.compute.amazonaws.com/uzardoya001/WEB/insert_media.php");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setConnectTimeout(5000);
+                conn.setReadTimeout(5000);
+                conn.setDoOutput(true);
+                conn.setRequestProperty("Content-Type", "application/json");
+
+                JSONObject jsonBody = new JSONObject();
+                jsonBody.put("titulo", titulo);
+                jsonBody.put("descripcion", descripcion);
+                jsonBody.put("tipo", tipo);
+                jsonBody.put("isCompleted", 0);
+
+                String jsonString = jsonBody.toString();
+
+                OutputStream os = conn.getOutputStream();
+                os.write(jsonString.getBytes("UTF-8"));
+                os.flush();
+                os.close();
+
+                int responseCode = conn.getResponseCode();
+                InputStream is = (responseCode == 200) ? conn.getInputStream() : conn.getErrorStream();
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+                StringBuilder response = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
+                }
+                reader.close();
+
+                Log.d("INSERT_JSON", "Respuesta: " + response);
+
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Insertado correctamente", Toast.LENGTH_SHORT).show();
+                    cargarDatos();
+                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                runOnUiThread(() -> Toast.makeText(this, "Error al insertar", Toast.LENGTH_SHORT).show());
+            }
         });
     }
+
 
     @Override
     public void onMediaUpdated(MediaItem item) {
-        AsyncTask.execute(() -> {
-            dao.updateItem(item);
-            runOnUiThread(this::cargarDatos);
+        executor.execute(() -> {
+            try {
+                URL url = new URL("http://ec2-51-44-167-78.eu-west-3.compute.amazonaws.com/uzardoya001/WEB/update_media.php");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setConnectTimeout(5000);
+                conn.setReadTimeout(5000);
+                conn.setDoOutput(true);
+                conn.setRequestProperty("Content-Type", "application/json");
+
+                JSONObject body = new JSONObject();
+                body.put("id", item.getId());
+                body.put("titulo", item.getTitulo());
+                body.put("descripcion", item.getDescripcion());
+                body.put("tipo", item.getTipo());
+                body.put("isCompleted", item.isCompleted() ? 1 : 0);
+
+                OutputStream os = conn.getOutputStream();
+                os.write(body.toString().getBytes("UTF-8"));
+                os.flush();
+                os.close();
+
+                InputStream is = (conn.getResponseCode() == 200) ? conn.getInputStream() : conn.getErrorStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+                StringBuilder response = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
+                }
+                reader.close();
+
+                Log.d("UPDATE_MEDIA", "Respuesta: " + response);
+
+                runOnUiThread(this::cargarDatos);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                runOnUiThread(() -> Toast.makeText(this, "Error actualizando", Toast.LENGTH_SHORT).show());
+            }
         });
     }
 
+
+
     @Override
     public void onMediaDeleted(MediaItem item) {
-        AsyncTask.execute(() -> {
-            dao.deleteItem(item);
-            runOnUiThread(this::cargarDatos);
+        executor.execute(() -> {
+            try {
+                URL url = new URL("http://ec2-51-44-167-78.eu-west-3.compute.amazonaws.com/uzardoya001/WEB/delete_media.php");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setConnectTimeout(5000);
+                conn.setReadTimeout(5000);
+                conn.setDoOutput(true);
+                conn.setRequestProperty("Content-Type", "application/json");
+
+                // Enviar ID como JSON
+                JSONObject json = new JSONObject();
+                json.put("id", item.getId());
+
+                OutputStream os = conn.getOutputStream();
+                os.write(json.toString().getBytes("UTF-8"));
+                os.flush();
+                os.close();
+
+                InputStream is = (conn.getResponseCode() == 200) ? conn.getInputStream() : conn.getErrorStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+                StringBuilder response = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
+                }
+                reader.close();
+
+                Log.d("DELETE_MEDIA", "Respuesta: " + response);
+
+                runOnUiThread(this::cargarDatos);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                runOnUiThread(() -> Toast.makeText(this, "Error eliminando", Toast.LENGTH_SHORT).show());
+            }
         });
     }
+
+
+
 
     @Override
     public void onItemClick(MediaItem item) {
@@ -278,9 +511,9 @@ public class MainActivity extends AppCompatActivity implements
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == EXPORT_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
             exportDataToUri(data.getData());
-        } else if (requestCode == IMPORT_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
+        } /*else if (requestCode == IMPORT_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
             importDataFromUri(data.getData());
-        }
+        }*/
     }
 
     @Override
@@ -300,11 +533,12 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void actualizarExtraInfo() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences prefs = getSharedPreferences("app_preferences", Context.MODE_PRIVATE);
         boolean showExtraInfo = prefs.getBoolean("show_extra_info", true);
         TextView tvExtraInfo = findViewById(R.id.tvExtraInfo);
         if (tvExtraInfo != null) {
             tvExtraInfo.setVisibility(showExtraInfo ? View.VISIBLE : View.GONE);
         }
     }
+
 }
