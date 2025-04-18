@@ -55,6 +55,16 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:textSize="14sp" />
+
+        <!-- Miniatura de imagen -->
+        <ImageView
+            android:id="@+id/ivImagen"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"
+            android:contentDescription="Imagen del ítem" />
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

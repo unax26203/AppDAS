@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.appseguimiento.R;
 import com.example.appseguimiento.data.MediaItem;
 
@@ -57,6 +58,11 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaViewHol
             // Si no hay tipo, asigna una imagen por defecto
             holder.ivTipo.setImageResource(R.drawable.ic_default);
         }
+        if (item.getImagen() != null && !item.getImagen().isEmpty()) {
+            Glide.with(holder.itemView.getContext())
+                    .load("http://ec2-51-44-167-78.eu-west-3.compute.amazonaws.com/uzardoya001/WEB/uploads/" + item.getImagen())
+                    .into(holder.ivImagen);
+        }
 
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -80,12 +86,15 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaViewHol
     class MediaViewHolder extends RecyclerView.ViewHolder {
         TextView tvTitulo, tvDescripcion, tvEstado;
         ImageView ivTipo;
+
+        ImageView ivImagen;
         MediaViewHolder(View itemView) {
             super(itemView);
             tvTitulo = itemView.findViewById(R.id.tvTitulo);
             tvDescripcion = itemView.findViewById(R.id.tvDescripcion);
             tvEstado = itemView.findViewById(R.id.tvEstado);
             ivTipo = itemView.findViewById(R.id.ivTipo);
+            ivImagen = itemView.findViewById(R.id.ivImagen);
         }
     }
 }

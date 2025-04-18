@@ -44,6 +44,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -188,7 +189,8 @@ public class MainActivity extends AppCompatActivity implements
                                 obj.getString("titulo"),
                                 obj.getString("descripcion"),
                                 obj.getInt("is_completed") == 1,
-                                obj.getString("tipo")
+                                obj.getString("tipo"),
+                                obj.getString("imagen")
                         );
                         item.setId(obj.getInt("id"));
                         lista.add(item);
@@ -283,7 +285,6 @@ public class MainActivity extends AppCompatActivity implements
 
                         queue.add(request);
 
-                        // Puedes añadir un pequeño delay si hay muchos items
                         Thread.sleep(100);
                     }
                 }
@@ -354,7 +355,7 @@ public class MainActivity extends AppCompatActivity implements
 
 
     @Override
-    public void onMediaAdded(String titulo, String descripcion, String tipo) {
+    public void onMediaAdded(String titulo, String descripcion, String tipo, String nombreImagen) {
         executor.execute(() -> {
             try {
                 URL url = new URL("http://ec2-51-44-167-78.eu-west-3.compute.amazonaws.com/uzardoya001/WEB/insert_media.php");
@@ -370,11 +371,10 @@ public class MainActivity extends AppCompatActivity implements
                 jsonBody.put("descripcion", descripcion);
                 jsonBody.put("tipo", tipo);
                 jsonBody.put("isCompleted", 0);
-
-                String jsonString = jsonBody.toString();
+                jsonBody.put("imagen", nombreImagen); // Ya subido en el dialog
 
                 OutputStream os = conn.getOutputStream();
-                os.write(jsonString.getBytes("UTF-8"));
+                os.write(jsonBody.toString().getBytes("UTF-8"));
                 os.flush();
                 os.close();
 
@@ -404,8 +404,9 @@ public class MainActivity extends AppCompatActivity implements
     }
 
 
+
     @Override
-    public void onMediaUpdated(MediaItem item) {
+    public void onMediaUpdated(MediaItem item, String nombreImagen) {
         executor.execute(() -> {
             try {
                 URL url = new URL("http://ec2-51-44-167-78.eu-west-3.compute.amazonaws.com/uzardoya001/WEB/update_media.php");
@@ -422,6 +423,11 @@ public class MainActivity extends AppCompatActivity implements
                 body.put("descripcion", item.getDescripcion());
                 body.put("tipo", item.getTipo());
                 body.put("isCompleted", item.isCompleted() ? 1 : 0);
+
+                // Solo incluir imagen si se ha subido una nueva
+                if (nombreImagen != null && !nombreImagen.isEmpty()) {
+                    body.put("imagen", nombreImagen);
+                }
 
                 OutputStream os = conn.getOutputStream();
                 os.write(body.toString().getBytes("UTF-8"));
@@ -447,6 +453,7 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
     }
+
 
 
 
@@ -540,5 +547,6 @@ public class MainActivity extends AppCompatActivity implements
             tvExtraInfo.setVisibility(showExtraInfo ? View.VISIBLE : View.GONE);
         }
     }
+
 
 }
