@@ -59,9 +59,12 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.MediaViewHol
             holder.ivTipo.setImageResource(R.drawable.ic_default);
         }
         if (item.getImagen() != null && !item.getImagen().isEmpty()) {
+            holder.ivImagen.setVisibility(View.VISIBLE);
             Glide.with(holder.itemView.getContext())
                     .load("http://ec2-51-44-167-78.eu-west-3.compute.amazonaws.com/uzardoya001/WEB/uploads/" + item.getImagen())
                     .into(holder.ivImagen);
+        } else {
+            holder.ivImagen.setVisibility(View.GONE);
         }
 
 

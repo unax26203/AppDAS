@@ -62,9 +62,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
+            android:maxHeight="300dp"
+            android:scaleType="fitCenter"
             android:layout_marginTop="8dp"
-            android:visibility="gone"
-            android:contentDescription="Imagen del ítem" />
+            android:contentDescription="Imagen del ítem"
+            android:visibility="gone" />
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>
