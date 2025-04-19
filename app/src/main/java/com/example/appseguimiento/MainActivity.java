@@ -75,6 +75,8 @@ public class MainActivity extends AppCompatActivity implements
 
     private ActivityResultLauncher<Intent> importLauncher;
 
+    private String tokenFCM = "";
+
 
     private String currentLanguage;
     private String currentTheme;
@@ -122,10 +124,22 @@ public class MainActivity extends AppCompatActivity implements
                         Log.w("FCM", "Fetching FCM registration token failed", task.getException());
                         return;
                     }
-                    String token = task.getResult();
-                    Log.d("FCM", "Token recibido: " + token);
-                    Toast.makeText(this, "Token FCM copiado a logcat", Toast.LENGTH_LONG).show();
+                    tokenFCM = task.getResult();
+                    Log.d("FCM", "Token recibido: " + tokenFCM);
                 });
+
+        Button btnMostrarToken = findViewById(R.id.btnMostrarToken);
+        btnMostrarToken.setOnClickListener(v -> {
+            if (!tokenFCM.isEmpty()) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Token FCM");
+                builder.setMessage(tokenFCM);
+                builder.setPositiveButton("OK", null);
+                builder.show();
+            } else {
+                Toast.makeText(this, "Token aún no disponible", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         exportLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
