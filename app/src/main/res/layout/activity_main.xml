@@ -39,8 +39,10 @@
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
         android:layout_margin="16dp"
+        android:contentDescription="TODO"
         android:src="@drawable/ic_add" />
 
+    <!-- Botón para abrir el mapa -->
     <Button
         android:id="@+id/btnAbrirMapa"
         android:layout_width="wrap_content"
@@ -49,6 +51,7 @@
         android:layout_margin="16dp"
         android:layout_gravity="center_horizontal" />
 
+    <!-- Botón para mostrar el token -->
     <Button
         android:id="@+id/btnMostrarToken"
         android:layout_width="wrap_content"
@@ -56,4 +59,27 @@
         android:text="Mostrar Token FCM"
         android:layout_marginTop="16dp"
         android:layout_gravity="center" />
+
+    <!-- Grupo de botones para el servicio -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="16dp">
+
+        <Button
+            android:id="@+id/btnIniciarServicio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Iniciar Servicio"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/btnDetenerServicio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Detener Servicio"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
 </LinearLayout>

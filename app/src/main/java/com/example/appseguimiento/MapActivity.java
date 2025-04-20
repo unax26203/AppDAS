@@ -63,7 +63,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         }
     }
 
-    private void obtenerUbicacion1() {
+    private void obtenerUbicacion() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
@@ -83,7 +83,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         });
     }
 
-    private void obtenerUbicacion() {
+    private void obtenerUbicacion1() {
         LatLng posicionSimulada = new LatLng(40.4168, -3.7038); // Centro de Madrid
         mapa.moveCamera(CameraUpdateFactory.newLatLngZoom(posicionSimulada, 15));
         mapa.addMarker(new MarkerOptions()
@@ -100,42 +100,11 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
     }
 
     private void buscarLugares(String tipoLugar, Location location) {
-        String servidorPhp = "http://ec2-51-44-167-78.eu-west-3.compute.amazonaws.com/uzardoya001/WEB/config.php";
-        String url = servidorPhp + "?lat=" + location.getLatitude()
-                + "&lng=" + location.getLongitude()
-                + "&tipo=" + tipoLugar;
-
-        RequestQueue queue = Volley.newRequestQueue(this);
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
-                response -> {
-                    try {
-                        Log.d("API_RESPONSE", response.toString());
-                        JSONArray resultados = response.getJSONArray("results");
-                        for (int i = 0; i < resultados.length(); i++) {
-                            JSONObject lugar = resultados.getJSONObject(i);
-                            JSONObject geometry = lugar.getJSONObject("geometry").getJSONObject("location");
-                            double lat = geometry.getDouble("lat");
-                            double lng = geometry.getDouble("lng");
-                            String nombre = lugar.getString("name");
-
-                            LatLng posicion = new LatLng(lat, lng);
-                            mapa.addMarker(new MarkerOptions()
-                                    .position(posicion)
-                                    .title(nombre));
-                        }
-
-                        if (resultados.length() == 0) {
-                            Toast.makeText(this, "No se encontraron lugares del tipo solicitado", Toast.LENGTH_SHORT).show();
-                        }
-                    } catch (Exception e) {
-                        Toast.makeText(this, "Error al procesar lugares", Toast.LENGTH_SHORT).show();
-                        e.printStackTrace();
-                    }
-                },
-                error -> Toast.makeText(this, "Error en la búsqueda: " + error.getMessage(), Toast.LENGTH_SHORT).show()
-        );
-
-        queue.add(request);
+        UsefulPlaces.buscarLugares(this, tipoLugar, location, (posicion, nombre) -> {
+            mapa.addMarker(new MarkerOptions()
+                    .position(posicion)
+                    .title(nombre));
+        });
     }
 
     @Override

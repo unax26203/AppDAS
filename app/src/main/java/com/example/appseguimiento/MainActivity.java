@@ -77,6 +77,11 @@ public class MainActivity extends AppCompatActivity implements
 
     private String tokenFCM = "";
 
+    private Button btnIniciarServicio;
+    private Button btnDetenerServicio;
+
+
+
 
     private String currentLanguage;
     private String currentTheme;
@@ -98,6 +103,9 @@ public class MainActivity extends AppCompatActivity implements
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        btnIniciarServicio = findViewById(R.id.btnIniciarServicio);
+        btnDetenerServicio = findViewById(R.id.btnDetenerServicio);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -163,6 +171,16 @@ public class MainActivity extends AppCompatActivity implements
         btnAbrirMapa.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, MapActivity.class);
             startActivity(intent);
+        });
+
+        btnIniciarServicio.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, SeguimientoService.class);
+            startForegroundService(intent);
+        });
+
+        btnDetenerServicio.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, SeguimientoService.class);
+            stopService(intent);
         });
     }
 
