@@ -107,6 +107,9 @@ public class MainActivity extends AppCompatActivity implements
         btnIniciarServicio = findViewById(R.id.btnIniciarServicio);
         btnDetenerServicio = findViewById(R.id.btnDetenerServicio);
 
+        // Programar el recordatorio
+        ReminderScheduler.scheduleReminder(this);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
