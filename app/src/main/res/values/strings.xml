@@ -42,6 +42,15 @@
 
 
 
+    <string name="btn_open_map">Abrir Mapa</string>
+    <string name="btn_show_token">Mostrar Token FCM</string>
+    <string name="btn_start_service">Iniciar Servicio</string>
+    <string name="btn_stop_service">Detener Servicio</string>
+    <string name="show_buttons">Mostrar Botones</string>
+
+
+
+
 
 
 </resources>

@@ -8,6 +8,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.fragment.app.FragmentManager;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -21,6 +23,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -127,6 +130,17 @@ public class MainActivity extends AppCompatActivity implements
             dialog.show(fm, "NuevoMediaDialog");
         });
 
+        FloatingActionButton fabToggleButtons = findViewById(R.id.fabToggleButtons);
+        LinearLayout btnGroup = findViewById(R.id.btnGroup);
+
+        fabToggleButtons.setOnClickListener(v -> {
+            if (btnGroup.getVisibility() == View.GONE) {
+                btnGroup.setVisibility(View.VISIBLE);
+            } else {
+                btnGroup.setVisibility(View.GONE);
+            }
+        });
+
         actualizarExtraInfo();
 
         FirebaseMessaging.getInstance().getToken()
@@ -145,7 +159,14 @@ public class MainActivity extends AppCompatActivity implements
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("Token FCM");
                 builder.setMessage(tokenFCM);
-                builder.setPositiveButton("OK", null);
+                builder.setPositiveButton("Copy", (dialog, which) -> {
+                    // Copiar el token al portapapeles
+                    ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                    ClipData clip = ClipData.newPlainText("FCM Token", tokenFCM);
+                    clipboard.setPrimaryClip(clip);
+                    Toast.makeText(this, "Token copiado al portapapeles", Toast.LENGTH_SHORT).show();
+                });
+                builder.setNegativeButton("Close", null);
                 builder.show();
             } else {
                 Toast.makeText(this, "Token aún no disponible", Toast.LENGTH_SHORT).show();

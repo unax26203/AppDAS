@@ -5,6 +5,7 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="buttonGroupBackground">@color/white</color>
 
     <!-- Colores para el tema Dark -->
     <color name="darkBackground">#121212</color>

@@ -41,4 +41,12 @@
     <string name="pref_summary_language">Choose between Spanish, English, and Basque</string>
 
 
+    <string name="btn_open_map">Open Map</string>
+    <string name="btn_show_token">Show FCM Token</string>
+    <string name="btn_start_service">Start Service</string>
+    <string name="btn_stop_service">Stop Service</string>
+    <string name="show_buttons">Show Buttons</string>
+
+
+
 </resources>

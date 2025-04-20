@@ -40,6 +40,12 @@
     <string name="pref_title_language">Hizkuntza aukeratu</string>
     <string name="pref_summary_language">Aukeratu Español, English edo Euskera</string>
 
+    <string name="btn_open_map">Mapa Ireki</string>
+    <string name="btn_show_token">Erakutsi FCM Tokena</string>
+    <string name="btn_start_service">Hasi Zerbitzua</string>
+    <string name="btn_stop_service">Gelditu Zerbitzua</string>
+    <string name="show_buttons">Erakutsi Botoiak</string>
+
 
 
 </resources>

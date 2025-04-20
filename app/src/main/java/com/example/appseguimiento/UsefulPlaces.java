@@ -46,9 +46,6 @@ public class UsefulPlaces {
 
                         if (!foundPlaces) {
                             Log.d("UsefulPlaces", "No places found for type: " + tipoLugar);
-                            if (context instanceof MapActivity) {
-                                Toast.makeText(context, "No se encontraron lugares del tipo solicitado", Toast.LENGTH_SHORT).show();
-                            }
                         }
                     } catch (Exception e) {
                         Toast.makeText(context, "Error al procesar lugares", Toast.LENGTH_SHORT).show();

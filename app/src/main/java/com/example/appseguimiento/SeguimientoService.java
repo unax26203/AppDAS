@@ -20,6 +20,7 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
 
 public class SeguimientoService extends Service {
 
@@ -71,7 +72,7 @@ public class SeguimientoService extends Service {
             return;
         }
 
-        LocationRequest locationRequest = new LocationRequest.Builder(LocationRequest.PRIORITY_HIGH_ACCURACY, 10000) // 10 segundos
+        LocationRequest locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000) // 10 segundos
                 .setMinUpdateIntervalMillis(5000) // 5 segundos
                 .build();
 
@@ -144,17 +145,15 @@ public class SeguimientoService extends Service {
     }
 
     private void createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel serviceChannel = new NotificationChannel(
-                    CHANNEL_ID,
-                    "Seguimiento Service Channel",
-                    NotificationManager.IMPORTANCE_DEFAULT
-            );
+        NotificationChannel serviceChannel = new NotificationChannel(
+                CHANNEL_ID,
+                "Seguimiento Service Channel",
+                NotificationManager.IMPORTANCE_DEFAULT
+        );
 
-            NotificationManager manager = getSystemService(NotificationManager.class);
-            if (manager != null) {
-                manager.createNotificationChannel(serviceChannel);
-            }
+        NotificationManager manager = getSystemService(NotificationManager.class);
+        if (manager != null) {
+            manager.createNotificationChannel(serviceChannel);
         }
     }
 }
