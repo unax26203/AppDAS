@@ -136,6 +136,11 @@ public class MainActivity extends AppCompatActivity implements
                 }
         );
 
+        // Comprobar si el permiso de notificaciones ya está concedido(para la tarea programada)
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+        }
+
         // Inicializar el launcher para el permiso de ubicación
         locationPermissionLauncher = registerForActivityResult(
                 new ActivityResultContracts.RequestPermission(),
