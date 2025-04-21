@@ -2,8 +2,10 @@ package com.example.appseguimiento;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.fragment.app.FragmentManager;
@@ -13,9 +15,11 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -26,6 +30,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.Manifest;
 
 import androidx.appcompat.widget.Toolbar;
 
@@ -78,6 +83,11 @@ public class MainActivity extends AppCompatActivity implements
 
     private ActivityResultLauncher<Intent> importLauncher;
 
+    private ActivityResultLauncher<String> locationPermissionLauncher;
+
+    private ActivityResultLauncher<String> notificationPermissionLauncher;
+
+
     private String tokenFCM = "";
 
     private Button btnIniciarServicio;
@@ -92,6 +102,7 @@ public class MainActivity extends AppCompatActivity implements
     private static final int EXPORT_REQUEST_CODE = 1;
     private static final int IMPORT_REQUEST_CODE = 2;
 
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         SharedPreferences prefs = getSharedPreferences("app_preferences", Context.MODE_PRIVATE);
@@ -109,6 +120,36 @@ public class MainActivity extends AppCompatActivity implements
 
         btnIniciarServicio = findViewById(R.id.btnIniciarServicio);
         btnDetenerServicio = findViewById(R.id.btnDetenerServicio);
+
+        // Inicializar el launcher para el permiso de notificaciones
+        notificationPermissionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(),
+                isGranted -> {
+                    if (isGranted) {
+                        // Permiso de notificaciones concedido
+                        checkAndRequestLocationPermission();
+                        Toast.makeText(this, "Permiso de notificaciones concedido", Toast.LENGTH_SHORT).show();
+                    } else {
+                        // Permiso de notificaciones denegado
+                        Toast.makeText(this, "Permiso de notificaciones denegado", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
+
+        // Inicializar el launcher para el permiso de ubicación
+        locationPermissionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(),
+                isGranted -> {
+                    if (isGranted) {
+                        // Si el permiso de ubicación es concedido, iniciar el servicio
+                        startLocationService();
+                    } else {
+                        // Si el permiso de ubicación es denegado
+                        Toast.makeText(this, "Permiso de ubicación denegado", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
+
 
         // Programar el recordatorio
         ReminderScheduler.scheduleReminder(this);
@@ -198,8 +239,13 @@ public class MainActivity extends AppCompatActivity implements
         });
 
         btnIniciarServicio.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, SeguimientoService.class);
-            startForegroundService(intent);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                // Pedir permiso de notificaciones
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+            } else {
+                // Pedir permiso de ubicación
+                checkAndRequestLocationPermission();
+            }
         });
 
         btnDetenerServicio.setOnClickListener(v -> {
@@ -601,6 +647,19 @@ public class MainActivity extends AppCompatActivity implements
         TextView tvExtraInfo = findViewById(R.id.tvExtraInfo);
         if (tvExtraInfo != null) {
             tvExtraInfo.setVisibility(showExtraInfo ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    private void startLocationService() {
+        Intent intent = new Intent(MainActivity.this, SeguimientoService.class);
+        startForegroundService(intent);
+    }
+
+    private void checkAndRequestLocationPermission() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
+        } else {
+            startLocationService();
         }
     }
 

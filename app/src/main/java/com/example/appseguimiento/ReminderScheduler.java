@@ -22,6 +22,11 @@ public class ReminderScheduler {
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
 
+        // Si la hora actual ya pasó las 12:00 PM, programar para mañana
+        if (Calendar.getInstance().after(calendar)) {
+            calendar.add(Calendar.DAY_OF_YEAR, 1);
+        }
+
         if (alarmManager != null) {
             alarmManager.setInexactRepeating(
                     AlarmManager.RTC_WAKEUP,

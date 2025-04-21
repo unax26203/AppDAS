@@ -72,7 +72,7 @@ public class SeguimientoService extends Service {
             return;
         }
 
-        LocationRequest locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000) // 10 segundos
+        LocationRequest locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 30000) // 30 segundos
                 .setMinUpdateIntervalMillis(5000) // 5 segundos
                 .build();
 
@@ -107,7 +107,7 @@ public class SeguimientoService extends Service {
         // Solo reproducir sonido si el lugar/lugares ha(n) cambiado
         if (!newPlace.equals(lastNotifiedPlace)) {
             lastNotifiedPlace = newPlace;
-            updateNotification("Lugar cercano: " + newPlace, true); // Play sound for new place
+            updateNotification("Lugar cercano: " + newPlace, true);
         } else {
             Log.d("SeguimientoService", "Lugar no ha cambiado, no se reproduce sonido.");
         }

@@ -47,11 +47,11 @@ public class SeguimientoWidget extends AppWidgetProvider {
 
         queue.add(request);
 
-        // Acción al hacer clic en el widget
-        Intent intent = new Intent(context, SeguimientoWidget.class);
-        intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_IMMUTABLE);
-        views.setOnClickPendingIntent(R.id.tvPendingCount, pendingIntent);
+        // Acción al hacer clic en el widget para abrir la app
+        Intent openAppIntent = new Intent(context, MainActivity.class);
+        PendingIntent openAppPendingIntent = PendingIntent.getActivity(
+                context, 0, openAppIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        views.setOnClickPendingIntent(R.id.tvWidgetTitle, openAppPendingIntent);
 
         appWidgetManager.updateAppWidget(appWidgetId, views);
     }
