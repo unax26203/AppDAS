@@ -8,32 +8,26 @@ import android.content.Intent;
 import java.util.Calendar;
 
 public class ReminderScheduler {
+        public static void scheduleReminder(Context context) {
+            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
-    public static void scheduleReminder(Context context) {
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            Intent intent = new Intent(context, ReminderReceiver.class);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                    context, 0, intent, PendingIntent.FLAG_IMMUTABLE);
 
-        Intent intent = new Intent(context, ReminderReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                context, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+            // Configurar la alarma para que se dispare cada 5 minutos
+            long interval = 5 * 60 * 1000; // 5 minutos en milisegundos
 
-        // Poner la alarma para las 12:00 PM
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 12);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.SECOND, 0);
 
-        // Si la hora actual ya pasó las 12:00 PM, programar para mañana
-        if (Calendar.getInstance().after(calendar)) {
-            calendar.add(Calendar.DAY_OF_YEAR, 1);
+            if (alarmManager != null) {
+                alarmManager.setRepeating(
+                        AlarmManager.RTC_WAKEUP,
+                        calendar.getTimeInMillis(),
+                        interval,
+                        pendingIntent
+                );
+            }
         }
-
-        if (alarmManager != null) {
-            alarmManager.setInexactRepeating(
-                    AlarmManager.RTC_WAKEUP,
-                    calendar.getTimeInMillis(),
-                    AlarmManager.INTERVAL_DAY,
-                    pendingIntent
-            );
-        }
-    }
 }
